@@ -5,14 +5,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.IOException;
-import java.net.UnknownHostException;
+
 
 import javax.swing.Timer;
 
 import org.jspace.RemoteSpace;
 
-import java.awt.Color;
+
 import java.awt.Dimension;
 
 public class Board extends JPanel implements ActionListener, KeyListener {
@@ -23,7 +22,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     Grid grid;
     Snake snake;
     Timer timer;
-    SnakeOpp snakeOpp;
+
 
     RemoteSpace space;
 
@@ -35,7 +34,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         setFocusable(true);
         grid = new Grid(this);
         snake = new Snake(10, 10, TILESIZE);
-        snakeOpp = new SnakeOpp(79, 79, 10);
+
     }
 
     public void start() {
@@ -51,7 +50,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     public void update() {
         snake.update();
-        snakeOpp.update();
 
     }
 
@@ -62,7 +60,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         super.paintComponent(g);
         grid.draw(g);
         snake.draw(g);
-        snakeOpp.draw(g);
+
 
 
     }
@@ -79,7 +77,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     @Override
     public void keyReleased(KeyEvent e) {
-        // TODO Auto-generated method stub
+
 
     }
 

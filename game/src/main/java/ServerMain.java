@@ -1,3 +1,4 @@
+import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.SequentialSpace;
 import org.jspace.SpaceRepository;
@@ -9,9 +10,8 @@ import java.net.URI;
 
 public class ServerMain {
     private static SequentialSpace game;
-    private static SequentialSpace Commands;
+    private static SequentialSpace commands;
     private int Players;
-    private Object[] command;
 
     public static void main(String[] args) {
         ServerMain game = new ServerMain();
@@ -19,24 +19,38 @@ public class ServerMain {
         game.game();
     }
 
-    public ServerMain(){
-    }
 
     private void Start() {
         Connection();
         matrixInit();
+        game();
     }
 
     private void game() {
-        try {
-            command = Commands.get(new FormalField(String.class), new FormalField(Integer.class), new FormalField(Integer.class));
-        }catch (Exception e){
-            System.out.println(e);
+        while(true) {
+            Object[] command = new Object[0];
+            Object[] m = new Object[0];
+            try {
+                System.out.println("Before get commmand");
+                command = commands.get(new FormalField(String.class), new FormalField(Integer.class), new FormalField(Integer.class));
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+            System.out.println("Before move");
+            move((String) command[0], (Integer) command[1], (Integer) command[2]);
+            try {
+                System.out.println("Before query");
+                m = game.query(new FormalField(Integer.class), new FormalField(Integer.class), new ActualField(1));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("X: " + (int) m[0] + ", Y: " + (int) m[1] + "ID: " + (int) m[2]);
+
+
         }
-        move((String) command[0], (Integer) command[1], (Integer) command[2]);
     }
 
-    private Tuple move(String direction, int x, int y){
+    private void move(String direction, int x, int y) {
         int xCorHead = 0;
         int yCorHead = 0;
 
@@ -63,14 +77,22 @@ public class ServerMain {
             yCorHead = (yCorHead + 1) % (Board.HEIGHT/10);
         }
 
+        try{
+            System.out.println("before get in move");
+            System.out.println("Server X: " + (int) xCorHead  + " Server Y: " + (int) yCorHead);
+        game.get(new ActualField (xCorHead), new ActualField(yCorHead), new ActualField(0));
+        game.put(xCorHead, yCorHead, 1);
+        } catch(InterruptedException e){
+            System.out.println(e);
+        }
 
-        return new Tuple(xCorHead,yCorHead);
     }
+
     private void matrixInit() {
         for (int i = 0; i <= 79 ;i++){
             for (int j = 0; j <=79;j++){
                 try {
-                    game.put(i, j, false);
+                    game.put(i, j, 0);
                 }catch (Exception e){
                     System.out.println(e);}
             }
@@ -86,17 +108,20 @@ public class ServerMain {
 
             // Create a local space for the game
             game = new SequentialSpace();
-            Commands = new SequentialSpace();
+            commands = new SequentialSpace();
 
             // Add the space to the repository
             repository.add("game", game);
+            repository.add("commands", commands);
+
+
 
             // Set the URI of the game
             System.out.print("Enter URI of the chat server or press enter for default: ");
             String uri = input.readLine();
             // Default value
             if (uri.isEmpty()) {
-                uri = "tcp://10.16.189.126:9001/?keep";
+                uri = "tcp://10.16.80.149:9001/?keep";
             }
 
             // Open a gate

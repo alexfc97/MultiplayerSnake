@@ -1,6 +1,4 @@
 import java.util.ArrayList;
-import java.util.List;
-
 import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.RemoteSpace;
@@ -80,7 +78,7 @@ public class Snake {
             if (down) {
                 playerOneInput.put(playerID, "down", xCorHead, yCorHead);
             }
-
+            // Getting the new coordinate
             Object[] newCor = playerOneOutput.getp(new FormalField(Integer.class), new FormalField(Integer.class));
             if (newCor != null) {
                 int newXCor = (int) newCor[0];
@@ -88,10 +86,13 @@ public class Snake {
                 System.out.println("Client recevied the new coordinates: " + newXCor + ", " + newYCor);
                 xCorHead = newXCor;
                 yCorHead = newYCor;
+                // Adding a new snake body part
                 snakeBody.add(new SnakeBodyPart(xCorHead, yCorHead, Board.TILESIZE));
+                // Adjusting the length
                 if (snakeBody.size() > length) {
                     SnakeBodyPart extraPart = snakeBody.get(0);
-                    gameState.get(new ActualField(extraPart.xCor), new ActualField(extraPart.yCor), new FormalField(Integer.class));
+                    gameState.get(new ActualField(extraPart.xCor), new ActualField(extraPart.yCor),
+                            new FormalField(Integer.class));
                     gameState.put(extraPart.xCor, extraPart.yCor, -1);
 
                     snakeBody.remove(0);
@@ -103,36 +104,6 @@ public class Snake {
         }
 
     }
-
-    // private ArrayList<SnakeBodyPart> gameStateToSnake(int i) {
-    // // Get all parts
-    // // add them to the list
-    // // Make length checks
-    // ArrayList<SnakeBodyPart> newSnakeBody = new ArrayList<SnakeBodyPart>();
-
-    // try {
-    // List<Object[]> allBodyParts = new ArrayList<>();
-    // allBodyParts = gameState.queryAll(new FormalField(Integer.class), new
-    // FormalField(Integer.class),
-    // new ActualField(i));
-    // for (Object[] bodyPart : allBodyParts) {
-    // newSnakeBody.add(new SnakeBodyPart((int) bodyPart[0], (int) bodyPart[1],
-    // Board.TILESIZE));
-    // }
-    // if (snakeBody.size() == 0){
-    // newSnakeBody.add(new SnakeBodyPart(10,10,10));
-    // }
-    // if (snakeBody.size() > length) {
-    // newSnakeBody.remove(0);
-    // }
-
-    // return newSnakeBody;
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // }
-    // return newSnakeBody;
-
-    // }
 
     public void draw(Graphics g) {
         for (int i = 0; i < snakeBody.size(); i++) {

@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 
+import org.jspace.ActualField;
+import org.jspace.FormalField;
 import org.jspace.RemoteSpace;
 
 import java.awt.Graphics;
@@ -7,12 +9,13 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.List;
 
 public class Snake {
     public ArrayList<SnakeBodyPart> snakeBody;
     public int xCorHead, yCorHead, length;
     public boolean up, down, left, right = false;
-    private RemoteSpace commands;
+    private RemoteSpace commands,game;
 
     public Snake(int initXCorHead, int initYCorHead, int initLength) {
         this.snakeBody = new ArrayList<SnakeBodyPart>();
@@ -20,7 +23,8 @@ public class Snake {
         this.yCorHead = initYCorHead;
         this.length = initLength;
         try {
-            commands = new RemoteSpace("tcp://10.16.80.149:9001/commands?keep");
+            commands = new RemoteSpace("tcp://10.16.189.126:9001/commands?keep");
+            game = new RemoteSpace("tcp://10.16.189.126:9001/game?keep");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,62 +60,37 @@ public class Snake {
     }
 
     public void update() {
-        // if (snakeBody.size() == 0) {
-        // snakeBody.add(new SnakeBodyPart(xCorHead, yCorHead, 10));
-        // }
 
-        // if (right) {
-        // xCorHead = (xCorHead + 1) % (Board.WIDTH/10);
-        // }
-
-        // if (left) {
-        // xCorHead--;
-        // if (xCorHead < 0) {
-        // xCorHead = (xCorHead + Board.WIDTH/10);
-        // }
-        // }
-
-        // if (up) {
-        // yCorHead--;
-        // if (yCorHead < 0) {
-        // yCorHead = (yCorHead + (Board.HEIGHT/10));
-        // }
-
-        // }
-
-        // if (down) {
-        // yCorHead = (yCorHead + 1) % (Board.HEIGHT/10);
-        // }
 
         if (right) {
             try {
                 commands.put("right", xCorHead, yCorHead);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException l) {
+                l.printStackTrace();
             }
         }
 
         if (left) {
             try {
                 commands.put("left", xCorHead, yCorHead);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException l) {
+                l.printStackTrace();
             }
         }
 
         if (up) {
             try {
                 commands.put("up", xCorHead, yCorHead);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException l) {
+                l.printStackTrace();
             }
         }
 
         if (down) {
             try {
                 commands.put("down", xCorHead, yCorHead);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException l) {
+                l.printStackTrace();
             }
         }
 
@@ -125,6 +104,17 @@ public class Snake {
     public void draw(Graphics g) {
         for (int i = 0; i < snakeBody.size(); i++) {
             snakeBody.get(i).draw(g);
+        }
+    }
+
+    public void ClientDraw(Graphics g) {
+        try {
+            List<Object[]> t = game.queryAll(new FormalField(Integer.class), new FormalField(Integer.class), new ActualField(1));
+            for (Object[] query : t) {
+                System.out.println(query[0] + " " + query[1] + " " + query[2]);
+            }
+        } catch(Exception e){
+            System.out.println(e);
         }
     }
 

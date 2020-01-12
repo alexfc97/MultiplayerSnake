@@ -1,3 +1,4 @@
+import com.sun.org.apache.bcel.internal.generic.FieldOrMethod;
 import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.SequentialSpace;
@@ -31,20 +32,21 @@ public class ServerMain {
             Object[] command = new Object[0];
             Object[] m = new Object[0];
             try {
-                System.out.println("Before get commmand");
+                //System.out.println("Before get commmand");
                 command = commands.get(new FormalField(String.class), new FormalField(Integer.class), new FormalField(Integer.class));
             } catch (Exception e) {
-                System.out.println(e);
+                //System.out.println(e);
             }
-            System.out.println("Before move");
+            //System.out.println("Before move");
             move((String) command[0], (Integer) command[1], (Integer) command[2]);
             try {
-                System.out.println("Before query");
+                //System.out.println("Before query");
                 m = game.query(new FormalField(Integer.class), new FormalField(Integer.class), new ActualField(1));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.out.println("X: " + (int) m[0] + ", Y: " + (int) m[1] + "ID: " + (int) m[2]);
+            //
+            // System.out.println("X: " + (int) m[0] + ", Y: " + (int) m[1] + ", ID: " + (int) m[2]);
 
 
         }
@@ -55,34 +57,31 @@ public class ServerMain {
         int yCorHead = 0;
 
         if (direction.equals("right")) {
-            xCorHead = (xCorHead + 1) % (Board.WIDTH/10);
+            xCorHead = (x + 1) % (Board.WIDTH/10);
         }
 
         if (direction.equals("left")) {
-            xCorHead--;
+            x--;
             if (xCorHead < 0) {
-                xCorHead = (xCorHead + Board.WIDTH/10);
+                xCorHead = (x + Board.WIDTH/10);
             }
         }
 
         if (direction.equals("up")) {
-            yCorHead--;
+            y--;
             if (yCorHead < 0) {
-                yCorHead = (yCorHead + (Board.HEIGHT/10));
+                yCorHead = (y + (Board.HEIGHT/10));
             }
 
         }
 
         if (direction.equals("down")) {
-            yCorHead = (yCorHead + 1) % (Board.HEIGHT/10);
+            yCorHead = (y + 1) % (Board.HEIGHT/10);
         }
-
         try{
-            System.out.println("before get in move");
-            System.out.println("Server X: " + (int) xCorHead  + " Server Y: " + (int) yCorHead);
-        game.get(new ActualField (xCorHead), new ActualField(yCorHead), new ActualField(0));
-        game.put(xCorHead, yCorHead, 1);
-        } catch(InterruptedException e){
+            game.get(new ActualField (xCorHead), new ActualField(yCorHead), new FormalField(Integer.class));
+            game.put(xCorHead, yCorHead, 1);
+        } catch(Exception e){
             System.out.println(e);
         }
 
@@ -121,7 +120,7 @@ public class ServerMain {
             String uri = input.readLine();
             // Default value
             if (uri.isEmpty()) {
-                uri = "tcp://10.16.80.149:9001/?keep";
+                uri = "tcp://10.16.189.126:9001/?keep";
             }
 
             // Open a gate

@@ -60,6 +60,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         super.paintComponent(g);
         grid.draw(g);
         snake.draw(g);
+        snake.ClientDraw(g);
 
 
 

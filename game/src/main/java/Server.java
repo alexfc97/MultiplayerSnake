@@ -42,12 +42,12 @@ public class Server {
 
             // Keep reading chat messages and printing them
 
-            //while(true) {
-            for (int i = 1; i <= 79; i++) {
+            while(true) {
+            for (int i = 1; i <= 40 ; i++) {
                 chat.put(40, i);
                 //System.out.println("New X coordinate is: " + t[0] + ", " + "New Y coordinate is: " + t[1]);
             }
-            //}
+            }
 
         } catch (InterruptedException e) {
             e.printStackTrace();

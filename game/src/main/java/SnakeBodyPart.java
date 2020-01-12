@@ -2,7 +2,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 public class SnakeBodyPart {
-    private int xCor, yCor, width, height;
+    public int xCor, yCor, width, height;
 
     public SnakeBodyPart(int xCor, int yCor, int tileSize) {
         this.xCor = xCor;

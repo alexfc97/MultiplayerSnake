@@ -5,14 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.IOException;
-import java.net.UnknownHostException;
 
 import javax.swing.Timer;
 
 import org.jspace.RemoteSpace;
 
-import java.awt.Color;
 import java.awt.Dimension;
 
 public class Board extends JPanel implements ActionListener, KeyListener {
@@ -21,21 +18,18 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     public static final int TILESIZE = 10;
 
     Grid grid;
-    Snake snake;
     Timer timer;
-    SnakeOpp snakeOpp;
+    Snake playerOneSnake;
 
-    RemoteSpace space;
 
     public Board() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setFocusable(true);
-        timer = new Timer(25, this);
+        timer = new Timer(50, this);
         addKeyListener(this);
         setFocusable(true);
         grid = new Grid(this);
-        snake = new Snake(10, 10, TILESIZE);
-        snakeOpp = new SnakeOpp(79, 79, 10);
+        playerOneSnake = new Snake(1,10, 10, TILESIZE);
     }
 
     public void start() {
@@ -50,8 +44,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     public void update() {
-        snake.update();
-        snakeOpp.update();
+        playerOneSnake.update();
 
     }
 
@@ -61,8 +54,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         grid.draw(g);
-        snake.draw(g);
-        snakeOpp.draw(g);
+        playerOneSnake.draw(g);
+
 
 
     }
@@ -73,7 +66,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        snake.pressed(e);
+        playerOneSnake.pressed(e);
 
     }
 

@@ -9,7 +9,7 @@ import org.jspace.SpaceRepository;
 
 public class Server {
     private SpaceRepository repository;
-    private SequentialSpace gameState, playerOneCommands;
+    private SequentialSpace gameState, playerOneInput, playerOneOutput;
 
     public static void main(String[] args) {
         Server server = new Server();
@@ -20,18 +20,20 @@ public class Server {
         repository = createRepo();
         addGate(repository);
         createSpaceMatrix();
-        handlePlayerCommands(playerOneCommands);
+        handlePlayerCommands(playerOneInput);
     }
 
     private void handlePlayerCommands(SequentialSpace playerCommands) {
         while (true) {
             try {
-                Object[] command = playerCommands.get(new ActualField(1), new FormalField(String.class),
+                Object[] command = playerCommands.get(new FormalField(Integer.class), new FormalField(String.class),
                         new FormalField(Integer.class), new FormalField(Integer.class));
-                String playerID = (String) command[0];
+                int playerID = (int) command[0];
                 String direction = (String) command[1];
                 int xCor = (int) command[2];
                 int yCor = (int) command[3];
+                System.out.println("New command from player" + playerID + ":" + "\n " + "    Direction: " + direction
+                        + "\n" + "    Coordinates: " + xCor + ", " + yCor);
                 move(playerID, direction, xCor, yCor);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -39,7 +41,7 @@ public class Server {
         }
     }
 
-    private void move(String playerID, String direction, int xCor, int yCor) {
+    private void move(int playerID, String direction, int xCor, int yCor) {
         int newXCor = xCor;
         int newYCor = yCor;
 
@@ -48,14 +50,14 @@ public class Server {
         }
 
         if (direction.equals("left")) {
-            newXCor = xCor--;
+            newXCor = xCor - 1;
             if (newXCor < 0) {
                 newXCor = (newXCor + Board.WIDTH / 10);
             }
         }
 
         if (direction.equals("up")) {
-            newYCor = yCor--;
+            newYCor = yCor - 1;
             if (newYCor < 0) {
                 newYCor = (newYCor + (Board.HEIGHT / 10));
             }
@@ -66,22 +68,29 @@ public class Server {
             newYCor = (yCor + 1) % (Board.HEIGHT / 10);
         }
 
-        try{
-        gameState.get(new ActualField(newXCor), new ActualField(newYCor), new ActualField(-1));
-        gameState.put(new ActualField(newXCor), new ActualField(newYCor), new ActualField(playerID));
-        } catch(InterruptedException e){
+        System.out.println("New coordinates: " + newXCor + ", " + newYCor);
+
+        try {
+            System.out.println("Updating the game state..");
+            gameState.get(new ActualField(newXCor), new ActualField(newYCor), new ActualField(-1));
+            gameState.put(newXCor, newYCor, playerID);
+            System.out.println("Sending new coordinates to client..");
+            System.out.println("---------");
+            playerOneOutput.put(newXCor, newYCor);
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
 
     }
 
     private SpaceRepository createRepo() {
         SpaceRepository repository = new SpaceRepository();
         gameState = new SequentialSpace();
-        playerOneCommands = new SequentialSpace();
+        playerOneInput = new SequentialSpace();
+        playerOneOutput = new SequentialSpace();
         repository.add("gameState", gameState);
-        repository.add("playerOneCommands", playerOneCommands);
+        repository.add("playerOneInput", playerOneInput);
+        repository.add("playerOneOutput", playerOneOutput);
         return repository;
     }
 

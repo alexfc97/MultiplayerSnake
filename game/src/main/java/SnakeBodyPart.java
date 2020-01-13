@@ -12,13 +12,27 @@ public class SnakeBodyPart {
     }
 
     public void update() {
-
     }
 
-    public void draw(Graphics g) {
-        g.setColor(Color.BLACK); 
-        g.fillRect(xCor*width, yCor*height, width, height); 
-        g.setColor(Color.GREEN);
-        g.fillRect(xCor*width + 2, yCor*height + 2, width - 4, height - 4); 
+    public void draw(Graphics g, int playerID) {
+        g.setColor(Color.BLACK);
+        if (playerID == 1){
+            g.fillRect(xCor*width, yCor*height, width, height);
+            g.setColor(Color.GREEN);
+            g.fillRect(xCor*width + 2, yCor*height + 2, width - 4, height - 4);
+        } else if (playerID == 2){
+            g.fillRect(xCor*width, yCor*height, width, height);
+            g.setColor(Color.BLUE);
+            g.fillRect(xCor*width + 2, yCor*height + 2, width - 4, height - 4);
+        } else if (playerID == 3){
+            g.fillRect(xCor*width, yCor*height, width, height);
+            g.setColor(Color.RED);
+            g.fillRect(xCor*width + 2, yCor*height + 2, width - 4, height - 4);
+        } else if (playerID == 4){
+            g.fillRect(xCor*width, yCor*height, width, height);
+            g.setColor(Color.MAGENTA);
+            g.fillRect(xCor*width + 2, yCor*height + 2, width - 4, height - 4);
+        }
+
     }
 }

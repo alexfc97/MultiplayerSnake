@@ -2,13 +2,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URI;
 
-import org.jspace.ActualField;
-import org.jspace.FormalField;
-import org.jspace.SequentialSpace;
-import org.jspace.SpaceRepository;
+import org.jspace.*;
 
 public class Server {
-    private SpaceRepository repository;
     private SequentialSpace gameState, playerOneInput, playerOneOutput;
 
     public static void main(String[] args) {
@@ -17,13 +13,11 @@ public class Server {
     }
 
     private void start() {
-        repository = createRepo();
+        SpaceRepository repository = createRepo();
         addGate(repository);
         createSpaceMatrix();
         handlePlayerCommands(playerOneInput);
     }
-
-
 
     private SpaceRepository createRepo() {
         SpaceRepository repository = new SpaceRepository();
@@ -42,8 +36,12 @@ public class Server {
             BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
             System.out.print("Enter URI of the chat server or press enter for default: ");
             String uri = input.readLine();
-            if (uri.isEmpty()) {
+            if (uri.equals("ali")) {
                 uri = "tcp://127.0.0.1:9001/?keep";
+            } else if (uri.equals("alex")){
+                uri = "tcp://10.16.189.126:9001/?keep";
+            } else if (uri.equals("marius")){
+                uri = "tcp://10.16.181.120:9001/?keep";
             }
             URI myUri = new URI(uri);
             String gateUri = "tcp://" + myUri.getHost() + ":" + myUri.getPort() + "?keep";
@@ -68,8 +66,6 @@ public class Server {
             }
         }
     }
-
-
 
     private void handlePlayerCommands(SequentialSpace playerCommands) {
         while (true) {
@@ -121,23 +117,49 @@ public class Server {
 
         System.out.println("New coordinates: " + newXCor + ", " + newYCor);
 
+
+        //fixme here:
+        // - Functionality for collisions
+        // - get method should not just check actualfield (-1)
+        // - should check as formalfield and perform the correct action
         try {
             System.out.println("Updating the game state..");
-            gameState.get(new ActualField(newXCor), new ActualField(newYCor), new ActualField(-1));
+            /*
+            Object[] NewState = gameState.get(new ActualField(newXCor), new ActualField(newYCor), new FormalField(Integer.class));
+            if (isCollision()){
+                if (foodCollision){
+                }
+                if (snakeCollision){
+                endGame();
+                //todo end game for player, end game if only one player left:
+                }
+
+            }
             gameState.put(newXCor, newYCor, playerID);
             System.out.println("Sending new coordinates to client..");
             System.out.println("---------");
-            playerOneOutput.put(newXCor, newYCor);
+            playerOneOutput.put(newXCor, newYCor,isAlive);
+             */
+            System.out.println("before getting new state");
+            Object[] NewState = gameState.get(new ActualField(newXCor), new ActualField(newYCor), new FormalField(Integer.class));
+            //Object[] NewState = gameState.get(new ActualField(newXCor), new ActualField(newYCor), new ActualField(-1));
+            gameState.put(newXCor, newYCor, playerID);
+            System.out.println("Sending new coordinates to client..");
+            playerOneOutput.put(newXCor, newYCor,isCollision((Integer) NewState[2]));
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
 
     }
 
-
-
-
-
-
-
+    private boolean isCollision(int x){
+        return x != -1;
+    }
 }
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-import javax.swing.JFrame;
+import javax.swing.*;
 
 public class SnakeGame extends JFrame {
     Board board;
@@ -12,7 +12,6 @@ public class SnakeGame extends JFrame {
     public static void main(String[] args) {
         SnakeGame game = new SnakeGame();
         game.start();
-
     }
 
     public void start() {

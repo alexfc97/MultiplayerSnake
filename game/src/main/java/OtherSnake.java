@@ -9,22 +9,19 @@ import java.awt.Graphics;
 
 import java.awt.event.KeyEvent;
 
-public class Snake {
+public class OtherSnake {
     private ArrayList<SnakeBodyPart> snakeBody;
     private int playerID, xCorHead, yCorHead, length;
     private boolean up, down, left, right = false;
     private RemoteSpace gameState, playerOneInput, playerOneOutput, Chat;
-    Scanner input = new Scanner(System.in);
 
-    public Snake(int playerID, int initXCorHead, int initYCorHead, int initLength) {
+    public OtherSnake(int playerID, int initXCorHead, int initYCorHead, int initLength) {
         this.playerID = playerID;
         this.snakeBody = new ArrayList<SnakeBodyPart>();
         this.xCorHead = initXCorHead;
         this.yCorHead = initYCorHead;
         this.length = initLength;
-
-        System.out.println("type in your player id in words");
-        String myString = input.next();
+        String myString = "One";
 
 
         try {
@@ -32,65 +29,19 @@ public class Snake {
             playerOneInput = new RemoteSpace("tcp://10.16.81.120:9001/"+ myString + "Input?keep");
             playerOneOutput = new RemoteSpace("tcp://10.16.81.120:9001/" + myString + "Output?keep");
             Chat = new RemoteSpace("tcp://10.16.81.120:9001/Chat?keep");
-            Chat.put(myString);
+
             System.out.println(myString);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void pressed(KeyEvent e) {
-        int key = e.getKeyCode();
 
-        if (key == KeyEvent.VK_RIGHT && !left) {
-            up = false;
-            down = false;
-            right = true;
-        }
 
-        if (key == KeyEvent.VK_LEFT && !right) {
-            up = false;
-            down = false;
-            left = true;
-        }
+    public void update() throws InterruptedException {
 
-        if (key == KeyEvent.VK_UP && !down) {
-            left = false;
-            right = false;
-            up = true;
-        }
-
-        if (key == KeyEvent.VK_DOWN && !up) {
-            left = false;
-            right = false;
-            down = true;
-        }
-
-    }
-
-    public void update() {
-        if (snakeBody.size() == 0) {
-            snakeBody.add(new SnakeBodyPart(xCorHead, yCorHead, 10));
-        }
-
-        try {
-            if (right) {
-                playerOneInput.put(playerID, "right", xCorHead, yCorHead);
-            }
-
-            if (left) {
-                playerOneInput.put(playerID, "left", xCorHead, yCorHead);
-            }
-
-            if (up) {
-                playerOneInput.put(playerID, "up", xCorHead, yCorHead);
-            }
-
-            if (down) {
-                playerOneInput.put(playerID, "down", xCorHead, yCorHead);
-            }
             // Getting the new coordinate
-            Object[] newCor = playerOneOutput.getp(new FormalField(Integer.class), new FormalField(Integer.class));
+            Object[] newCor = playerOneOutput.query(new FormalField(Integer.class), new FormalField(Integer.class));
             if (newCor != null) {
                 int newXCor = (int) newCor[0];
                 int newYCor = (int) newCor[1];
@@ -111,9 +62,7 @@ public class Snake {
                 }
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
 
     }
 
@@ -124,3 +73,7 @@ public class Snake {
     }
 
 }
+
+
+
+

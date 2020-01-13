@@ -20,6 +20,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     Grid grid;
     Timer timer;
     Snake playerOneSnake;
+    OtherSnake playerTwoSnake;
 
 
     public Board() {
@@ -30,6 +31,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         setFocusable(true);
         grid = new Grid(this);
         playerOneSnake = new Snake(1,10, 10, TILESIZE);
+        playerTwoSnake = new OtherSnake(2, 60, 60, TILESIZE);
     }
 
     public void start() {
@@ -39,12 +41,17 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     // Runs every timer tick
     @Override
     public void actionPerformed(ActionEvent e) {
-        update();
+        try {
+            update();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
         repaint();
     }
 
-    public void update() {
+    public void update() throws InterruptedException {
         playerOneSnake.update();
+        //playerTwoSnake.update();
 
     }
 
@@ -55,6 +62,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         super.paintComponent(g);
         grid.draw(g);
         playerOneSnake.draw(g);
+        //playerTwoSnake.draw(g);
 
 
 
@@ -67,6 +75,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         playerOneSnake.pressed(e);
+        //playerTwoSnake.pressed(e);
 
     }
 

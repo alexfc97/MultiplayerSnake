@@ -9,7 +9,8 @@ import org.jspace.SpaceRepository;
 
 public class Server {
     private SpaceRepository repository;
-    private SequentialSpace gameState, playerOneInput, playerOneOutput;
+    private SequentialSpace gameState, playerOneInput, playerOneOutput, playerTwoInput, playerTwoOutput, Chat;
+    Object[] player_name;
 
     public static void main(String[] args) {
         Server server = new Server();
@@ -20,7 +21,27 @@ public class Server {
         repository = createRepo();
         addGate(repository);
         createSpaceMatrix();
-        handlePlayerCommands(playerOneInput);
+        try {
+            player_name = (Chat.get(new FormalField(String.class)));
+            System.out.println(player_name[0]);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if(player_name[0].equals("One")){
+            System.out.println("before get");
+            handlePlayerCommands(playerOneInput);
+            }
+        else if(player_name[0].equals("Two")){
+            try {
+                Chat.put("Two");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Multi m1=new Multi();
+            Thread t1 =new Thread(m1);
+            t1.start();
+        }
+
     }
 
 
@@ -30,9 +51,13 @@ public class Server {
         gameState = new SequentialSpace();
         playerOneInput = new SequentialSpace();
         playerOneOutput = new SequentialSpace();
+        Chat = new SequentialSpace();
+        repository.add("Chat", Chat);
         repository.add("gameState", gameState);
-        repository.add("playerOneInput", playerOneInput);
-        repository.add("playerOneOutput", playerOneOutput);
+        repository.add("OneInput", playerOneInput);
+        repository.add("OneOutput", playerOneOutput);
+        repository.add("TwoInput", playerTwoInput);
+        repository.add("TwoOutput", playerTwoOutput);
         return repository;
     }
 
@@ -43,7 +68,7 @@ public class Server {
             System.out.print("Enter URI of the chat server or press enter for default: ");
             String uri = input.readLine();
             if (uri.isEmpty()) {
-                uri = "tcp://127.0.0.1:9001/?keep";
+                uri = "tcp://10.16.81.120:9001/?keep";
             }
             URI myUri = new URI(uri);
             String gateUri = "tcp://" + myUri.getHost() + ":" + myUri.getPort() + "?keep";
@@ -134,10 +159,17 @@ public class Server {
 
     }
 
+    class Multi implements Runnable{
+        public void run(){
+            handlePlayerCommands(playerTwoInput);
+        }
+
+        }
 
 
 
 
 
 
-}
+
+    }

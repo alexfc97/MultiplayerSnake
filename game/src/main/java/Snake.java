@@ -135,6 +135,7 @@ public class Snake extends JFrame {
         }
     }
     public static void endGame() {
+        //todo edit game over panel to look nice
         JOptionPane.showMessageDialog(null, "Game Over","GAME OVER", JOptionPane.ERROR_MESSAGE);
         System.exit(ABORT);
     }

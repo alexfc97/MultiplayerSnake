@@ -30,17 +30,16 @@ public class OtherSnake {
             playerOneOutput = new RemoteSpace("tcp://10.16.81.120:9001/" + myString + "Output?keep");
             Chat = new RemoteSpace("tcp://10.16.81.120:9001/Chat?keep");
 
-            System.out.println(myString);
+            //System.out.println(myString);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
-
     public void update() throws InterruptedException {
 
             // Getting the new coordinate
+             System.out.println("stuck");
             Object[] newCor = playerOneOutput.query(new FormalField(Integer.class), new FormalField(Integer.class));
             if (newCor != null) {
                 int newXCor = (int) newCor[0];
@@ -50,13 +49,14 @@ public class OtherSnake {
                 yCorHead = newYCor;
                 // Adding a new snake body part
                 snakeBody.add(new SnakeBodyPart(xCorHead, yCorHead, Board.TILESIZE));
+
                 // Adjusting the length
                 if (snakeBody.size() > length) {
                     SnakeBodyPart extraPart = snakeBody.get(0);
                     //System.out.println("before gamestate get in snake");
-                    gameState.get(new ActualField(extraPart.xCor), new ActualField(extraPart.yCor),
+                    gameState.query(new ActualField(extraPart.xCor), new ActualField(extraPart.yCor),
                             new FormalField(Integer.class));
-                    gameState.put(extraPart.xCor, extraPart.yCor, -1);
+                    //gameState.put(extraPart.xCor, extraPart.yCor, -1);
 
                     snakeBody.remove(0);
                 }

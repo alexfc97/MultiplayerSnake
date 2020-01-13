@@ -82,24 +82,10 @@ public class Snake extends JFrame {
             if (snakeBody.size() == 0) {
                 snakeBody.add(new SnakeBodyPart(xCorHead, yCorHead, 10));
             }
-
+            sendDirection();
             try {
-                if (right) {
-                    playerOneInput.put(playerID, "right", xCorHead, yCorHead);
-                }
-
-                if (left) {
-                    playerOneInput.put(playerID, "left", xCorHead, yCorHead);
-                }
-
-                if (up) {
-                    playerOneInput.put(playerID, "up", xCorHead, yCorHead);
-                }
-
-                if (down) {
-                    playerOneInput.put(playerID, "down", xCorHead, yCorHead);
-                }
                 // Getting the new coordinate
+
                 Object[] newCor = playerOneOutput.getp(new FormalField(Integer.class), new FormalField(Integer.class), new FormalField(Boolean.class));
                 if (newCor != null) {
                     System.out.println((boolean) newCor[2]);
@@ -136,7 +122,30 @@ public class Snake extends JFrame {
     }
     public static void endGame() {
         //todo edit game over panel to look nice
+
         JOptionPane.showMessageDialog(null, "Game Over","GAME OVER", JOptionPane.ERROR_MESSAGE);
         System.exit(ABORT);
+    }
+
+    public void sendDirection() {
+        try {
+            if (right) {
+                playerOneInput.put(playerID, "right", xCorHead, yCorHead);
+            }
+
+            if (left) {
+                playerOneInput.put(playerID, "left", xCorHead, yCorHead);
+            }
+
+            if (up) {
+                playerOneInput.put(playerID, "up", xCorHead, yCorHead);
+            }
+
+            if (down) {
+                playerOneInput.put(playerID, "down", xCorHead, yCorHead);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 }

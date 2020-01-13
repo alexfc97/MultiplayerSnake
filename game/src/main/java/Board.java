@@ -23,6 +23,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     Snake playerTwoSnake;
     Snake playerThreeSnake;
     Snake playerFourSnake;
+    Food food;
 
     public Board() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -35,6 +36,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         //playerTwoSnake = new Snake(2,70, 10, TILESIZE);
         //playerThreeSnake = new Snake(3,10, 70, TILESIZE);
         //playerFourSnake = new Snake(4,70, 70, TILESIZE);
+        food = new Food(TILESIZE);
     }
 
     public void start() {
@@ -59,6 +61,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         super.paintComponent(g);
         grid.draw(g);
         playerOneSnake.draw(g);
+        food.draw(g);
         //playerTwoSnake.draw(g);
         //playerThreeSnake.draw(g);
         //playerFourSnake.draw(g);

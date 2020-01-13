@@ -140,7 +140,6 @@ public class Server {
             System.out.println("---------");
             playerOneOutput.put(newXCor, newYCor,isAlive);
              */
-            System.out.println("before getting new state");
             Object[] NewState = gameState.get(new ActualField(newXCor), new ActualField(newYCor), new FormalField(Integer.class));
             //Object[] NewState = gameState.get(new ActualField(newXCor), new ActualField(newYCor), new ActualField(-1));
             gameState.put(newXCor, newYCor, playerID);

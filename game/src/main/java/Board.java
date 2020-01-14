@@ -19,17 +19,16 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     Grid grid;
     Timer timer;
-    Snake playerOneSnake;
-
+    Player playerOne;
 
     public Board() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setFocusable(true);
-        timer = new Timer(50, this);
+        timer = new Timer(500, this);
         addKeyListener(this);
         setFocusable(true);
         grid = new Grid(this);
-        playerOneSnake = new Snake(1,10, 10, TILESIZE);
+        playerOne = new Player(1);
     }
 
     public void start() {
@@ -44,7 +43,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     public void update() {
-        playerOneSnake.update();
+        playerOne.update();
 
     }
 
@@ -54,7 +53,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         grid.draw(g);
-        playerOneSnake.draw(g);
+        playerOne.draw(g);
 
 
 
@@ -66,7 +65,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        playerOneSnake.pressed(e);
+        playerOne.pressed(e);
 
     }
 

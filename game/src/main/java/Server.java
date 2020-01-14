@@ -9,7 +9,8 @@ import org.jspace.SpaceRepository;
 
 public class Server {
     private SpaceRepository repository;
-    private SequentialSpace gameState, playerOneInput, playerOneOutput;
+    private SequentialSpace gameState, playerOneInput;
+    private Snake playerOne;
 
     public static void main(String[] args) {
         Server server = new Server();
@@ -20,22 +21,30 @@ public class Server {
         repository = createRepo();
         addGate(repository);
         createSpaceMatrix();
+        intiPlayerOne();
         handlePlayerCommands(playerOneInput);
     }
 
+    private void intiPlayerOne() {
+        try {
+            gameState.get(new ActualField(10), new ActualField(10), new ActualField(true));
+            this.playerOne = new Snake(1, 10, 10, Board.TILESIZE);
+            playerOne.snakeBody.add(new SnakeBodyPart(playerOne.xCorHead, playerOne.yCorHead, 1, Board.TILESIZE));
+            gameState.put(10, 10, 1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
+    }
 
     private SpaceRepository createRepo() {
         SpaceRepository repository = new SpaceRepository();
         gameState = new SequentialSpace();
         playerOneInput = new SequentialSpace();
-        playerOneOutput = new SequentialSpace();
         repository.add("gameState", gameState);
         repository.add("playerOneInput", playerOneInput);
-        repository.add("playerOneOutput", playerOneOutput);
         return repository;
     }
-
 
     private void addGate(SpaceRepository repo) {
         try {
@@ -55,12 +64,11 @@ public class Server {
         }
     }
 
-
     private void createSpaceMatrix() {
         for (int row = 0; row < Board.HEIGHT / 10; row++) {
             for (int col = 0; col < Board.WIDTH / 10; col++) {
                 try {
-                    gameState.put(row, col, -1);
+                    gameState.put(row, col, true);
                 } catch (InterruptedException e) {
                     System.out.println("Failed to create the space matrix. Error stack");
                     e.printStackTrace();
@@ -69,23 +77,19 @@ public class Server {
         }
     }
 
-
-
     private void handlePlayerCommands(SequentialSpace playerCommands) {
         while (true) {
             try {
                 // Getting the command from the player
-                Object[] command = playerCommands.get(new FormalField(Integer.class), new FormalField(String.class),
-                        new FormalField(Integer.class), new FormalField(Integer.class));
+                Object[] command = playerCommands.get(new FormalField(Integer.class), new FormalField(String.class));
                 // Parsing it
                 int playerID = (int) command[0];
                 String direction = (String) command[1];
-                int xCor = (int) command[2];
-                int yCor = (int) command[3];
-                System.out.println("New command from player" + playerID + ":" + "\n " + "    Direction: " + direction
-                        + "\n" + "    Coordinates: " + xCor + ", " + yCor);
+                System.out.println(
+                        "New command from player" + playerID + ":" + "\n " + "    Direction: " + direction + "\n");
                 // Running move
-                move(playerID, direction, xCor, yCor);
+
+                move(playerID, direction, playerOne.xCorHead, playerOne.yCorHead);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -123,21 +127,27 @@ public class Server {
 
         try {
             System.out.println("Updating the game state..");
-            gameState.get(new ActualField(newXCor), new ActualField(newYCor), new ActualField(-1));
+            gameState.get(new ActualField(newXCor), new ActualField(newYCor), new ActualField(true));
+            System.out.println("After getting the empty cell");
+            playerOne.snakeBody.add(new SnakeBodyPart(newXCor, newYCor, 1, Board.TILESIZE));
+            if (playerOne.snakeBody.size() > playerOne.length) {
+                int oldX = playerOne.snakeBody.get(0).xCor;
+                int oldY = playerOne.snakeBody.get(0).yCor;
+                playerOne.snakeBody.remove(0);
+                gameState.get(new ActualField(oldX), new ActualField(oldY), new FormalField(Integer.class));
+                System.out.println("After getting old cell");
+                gameState.put(oldX, oldY, true);
+            }
+            playerOne.xCorHead = newXCor;
+            playerOne.yCorHead = newYCor;
             gameState.put(newXCor, newYCor, playerID);
             System.out.println("Sending new coordinates to client..");
             System.out.println("---------");
-            playerOneOutput.put(newXCor, newYCor);
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
     }
-
-
-
-
-
-
 
 }

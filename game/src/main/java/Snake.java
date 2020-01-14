@@ -8,8 +8,9 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 
 public class Snake {
-    private ArrayList<SnakeBodyPart> snakeBody;
-    private int playerID, xCorHead, yCorHead, length;
+    // TODO make them private at some point
+    public ArrayList<SnakeBodyPart> snakeBody;
+    public int playerID, xCorHead, yCorHead, length; 
     private boolean up, down, left, right = false;
     private RemoteSpace gameState, playerOneInput, playerOneOutput;
 
@@ -27,6 +28,8 @@ public class Snake {
             e.printStackTrace();
         }
     }
+
+
 
     public void pressed(KeyEvent e) {
         int key = e.getKeyCode();
@@ -58,9 +61,9 @@ public class Snake {
     }
 
     public void update() {
-        if (snakeBody.size() == 0) {
-            snakeBody.add(new SnakeBodyPart(xCorHead, yCorHead, 10));
-        }
+        // if (snakeBody.size() == 0) {
+        //     snakeBody.add(new SnakeBodyPart(xCorHead, yCorHead, 10));
+        // }
 
         try {
             if (right) {
@@ -87,7 +90,7 @@ public class Snake {
                 xCorHead = newXCor;
                 yCorHead = newYCor;
                 // Adding a new snake body part
-                snakeBody.add(new SnakeBodyPart(xCorHead, yCorHead, Board.TILESIZE));
+                snakeBody.add(new SnakeBodyPart(xCorHead, yCorHead,playerID, Board.TILESIZE));
                 // Adjusting the length
                 if (snakeBody.size() > length) {
                     SnakeBodyPart extraPart = snakeBody.get(0);

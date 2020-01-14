@@ -8,12 +8,19 @@ import org.jspace.SequentialSpace;
 import org.jspace.SpaceRepository;
 
 public class Server {
+    private int numberOfPlayers;
     private SpaceRepository repository;
-    private SequentialSpace gameState, playerOneInput;
+    private SequentialSpace gameState;
+    private SequentialSpace playersInputSpaces[];
     private Snake playerOne;
 
+    public Server(int numberOfPlayers) {
+        this.numberOfPlayers = numberOfPlayers;
+    }
+
     public static void main(String[] args) {
-        Server server = new Server();
+        // TODO input number of players from terminal
+        Server server = new Server(2);
         server.start();
     }
 
@@ -35,6 +42,14 @@ public class Server {
             e.printStackTrace();
         }
 
+    }
+
+    private void createInputSpaces() {
+        for (int id : IDlist) {
+            String name = "player_" + id + "_input";
+            SequentialSpace space = new SequentialSpace();
+            repository.add(name, space);
+        }
     }
 
     private SpaceRepository createRepo() {

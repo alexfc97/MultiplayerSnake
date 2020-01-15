@@ -1,6 +1,8 @@
 import org.jspace.FormalField;
 import org.jspace.RemoteSpace;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.awt.Graphics;
@@ -9,27 +11,46 @@ public class Player {
     private int playerID;
     RemoteSpace gameState, playerInput, lobby, IDs;
     private boolean up, down, left, right = false;
+    private String gateIP;
 
     public Player() {
         connect();
     }
 
     private void connect() {
+        getIP();
 
         try {
-            lobby = new RemoteSpace("tcp://localhost:9001/lobby?keep");
-            IDs = new RemoteSpace("tcp://localhost:9001/IDs?keep");
-            gameState = new RemoteSpace("tcp://localhost:9001/gameState?keep");
+            lobby = new RemoteSpace("tcp://" + gateIP + "/lobby?keep");
+            IDs = new RemoteSpace("tcp://" + gateIP + "/IDs?keep");
+            gameState = new RemoteSpace("tcp://" + gateIP + "/gameState?keep");
             System.out.println("Client has created remote repos");
             lobby.put("connected");
             Object[] t = IDs.get(new FormalField(Integer.class));
             System.out.println("Player ID:  " + t.toString());
             playerID = (int) t[0];
             String spaceName = "player_" + playerID + "_input";
-            playerInput = new RemoteSpace("tcp://localhost:9001/" + spaceName + "?keep");
+            playerInput = new RemoteSpace("tcp://" + gateIP + "/" + spaceName + "?keep");
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void getIP() {
+        try {
+            BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print("Enter the IP address of the server. Press enter for localhost:9001: ");
+            String ip = input.readLine();
+            if (ip.isEmpty()) {
+                ip = "localhost:9001";
+
+                this.gateIP = ip;
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void update() {

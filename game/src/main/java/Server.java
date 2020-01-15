@@ -15,7 +15,7 @@ public class Server {
     private int startID;
     private Random rand;
     private int initSnakeLength;
-    private HashMap<Integer, SequentialSpace> idMap = new HashMap<Integer, SequentialSpace>();
+    private static HashMap<Integer, SequentialSpace> idMap = new HashMap<Integer, SequentialSpace>();
     protected static HashMap<Integer, Snake> snakeMap = new HashMap<Integer, Snake>();
     private SpaceRepository repository;
     private static SequentialSpace gameState, lobby, IDs;
@@ -123,13 +123,13 @@ public class Server {
         int id = startID;
         for (int i = 0; i < numberOfPlayers; i++) {
             try {
-                // Creating IDs
+                // Creating IDs and Input spaces
                 lobby.get(new ActualField("connected"));
                 String name = "player_" + id + "_input";
                 SequentialSpace space = new SequentialSpace();
+                space.put("input_lock");
                 idMap.put(id, space);
                 repository.add(name, space);
-                System.out.println(id);
                 IDs.put(id);
 
                 // Creating Snakes
@@ -146,6 +146,7 @@ public class Server {
                 e.printStackTrace();
             }
         }
+        System.out.println(numberOfPlayers + " Have joined !");
 
     }
 
@@ -186,10 +187,13 @@ public class Server {
         System.out.println("New coordinates: " + newXCor + ", " + newYCor);
 
         try {
+            // Waiting for the cell to be avaliable
             System.out.println("Updating the game state..");
             gameState.get(new ActualField(newXCor), new ActualField(newYCor), new ActualField(true));
             System.out.println("After getting the empty cell");
+            // Adding a bodypart to the snake object
             snakeMap.get(playerID).snakeBody.add(new SnakeBodyPart(newXCor, newYCor, 1, Board.TILESIZE));
+            // Controlling for length
             if (snakeMap.get(playerID).snakeBody.size() > snakeMap.get(playerID).length) {
                 int oldX = snakeMap.get(playerID).snakeBody.get(0).xCor;
                 int oldY = snakeMap.get(playerID).snakeBody.get(0).yCor;
@@ -198,8 +202,12 @@ public class Server {
                 System.out.println("After getting old cell");
                 gameState.put(oldX, oldY, true);
             }
+            // Updating the snake
             snakeMap.get(playerID).xCorHead = newXCor;
             snakeMap.get(playerID).yCorHead = newYCor;
+            // Putting back the clinet input lock
+            idMap.get(playerID).put("input_lock");
+            // Updating the game state
             gameState.put(newXCor, newYCor, playerID);
             System.out.println("Sending new coordinates to client..");
             System.out.println("---------");

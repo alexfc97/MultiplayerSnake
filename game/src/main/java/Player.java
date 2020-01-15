@@ -1,3 +1,4 @@
+import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.RemoteSpace;
 import java.awt.event.KeyEvent;
@@ -55,21 +56,27 @@ public class Player {
 
     public void update() {
         try {
+            Object[] lock = playerInput.getp(new ActualField("input_lock"));
+            if(lock != null){
+            
             if (right) {
                 playerInput.put(playerID, "right");
             }
 
-            if (left) {
+            else if (left) {
                 playerInput.put(playerID, "left");
             }
 
-            if (up) {
+            else if (up) {
                 playerInput.put(playerID, "up");
             }
 
-            if (down) {
+            else if (down) {
                 playerInput.put(playerID, "down");
+            } else {
+                playerInput.put("input_lock");
             }
+        }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -113,11 +120,12 @@ public class Player {
 
             System.out.println(response.size());
             for (Object[] obj : response) {
-                System.out.println("In loop");
                 int xCor = (int) obj[0];
                 int yCor = (int) obj[1];
                 int ID = (int) obj[2];
-                System.out.println("Response from server: X: " + xCor + " Y: " + yCor + "ID: " + ID);
+                if(ID == playerID){
+                    System.out.println("Response from server: X: " + xCor + " Y: " + yCor + " ID: " + ID);
+                }
                 allBodyParts.add(new SnakeBodyPart(xCor, yCor, ID, Board.TILESIZE));
             }
             return allBodyParts;

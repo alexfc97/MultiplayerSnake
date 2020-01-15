@@ -105,14 +105,6 @@ public class Player {
 
     }
 
-    public void draw(Graphics g) {
-        ArrayList<SnakeBodyPart> allBodyParts = getAllBodyParts();
-        for (SnakeBodyPart bodyPart : allBodyParts) {
-            bodyPart.draw(g);
-        }
-
-    }
-
     public ArrayList<SnakeBodyPart> getAllBodyParts() {
         try {
             ArrayList<SnakeBodyPart> allBodyParts = new ArrayList<SnakeBodyPart>(0);
@@ -132,6 +124,14 @@ public class Player {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+
+    }
+
+    public void draw(Graphics g) {
+        ArrayList<SnakeBodyPart> allBodyParts = getAllBodyParts();
+        for (SnakeBodyPart bodyPart : allBodyParts) {
+            bodyPart.draw(g);
         }
 
     }

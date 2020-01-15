@@ -34,11 +34,27 @@ public class Server {
     private void start() {
         initNumberOfPlayers();
         initSnakeLength();
-        repository = initRepo();
+        initRepo();
         createSpaceMatrix();
         addGate(repository);
         waitingForPlayers();
         initThreads();
+    }
+
+    private void initNumberOfPlayers() {
+        try {
+            BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print("Enter the desired number of players: ");
+            String n = input.readLine();
+            if (n.isEmpty()) {
+                n = "2";
+            }
+            int players = Integer.valueOf(n);
+            this.numberOfPlayers = players;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void initSnakeLength() {
@@ -60,27 +76,47 @@ public class Server {
         }
     }
 
-    private void initNumberOfPlayers() {
-        try {
-            BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("Enter the desired number of players: ");
-            String n = input.readLine();
-            if (n.isEmpty()) {
-                n = "2";
-            }
-            int players = Integer.valueOf(n);
-            this.numberOfPlayers = players;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+    private void initRepo() {
+        SpaceRepository repository = new SpaceRepository();
+        gameState = new SequentialSpace();
+        lobby = new SequentialSpace();
+        IDs = new SequentialSpace();
+        repository.add("gameState", gameState);
+        repository.add("lobby", lobby);
+        repository.add("IDs", IDs);
+        this.repository = repository;
     }
 
-    private void initThreads() {
-        idMap.forEach((id, space) -> {
-            Thread t = new PlayerHandler(space);
-            t.start();
-        });
+    private void createSpaceMatrix() {
+        for (int row = 0; row < Board.HEIGHT / 10; row++) {
+            for (int col = 0; col < Board.WIDTH / 10; col++) {
+                try {
+                    gameState.put(row, col, true);
+                } catch (InterruptedException e) {
+                    System.out.println("Failed to create the space matrix. Error stack");
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void addGate(SpaceRepository repo) {
+        try {
+            BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print("Enter an IP address for the  server or press enter for localhost:9001:  ");
+            String ip = input.readLine();
+            if (ip.isEmpty()) {
+                ip = "localhost:9001";
+            }
+            String uri = "tcp://" + ip + "/?keep";
+            URI myUri = new URI(uri);
+            String gateUri = "tcp://" + myUri.getHost() + ":" + myUri.getPort() + "?keep";
+            System.out.println("Opening repository gate at " + gateUri + "...");
+            repo.addGate(gateUri);
+        } catch (Exception e) {
+            System.out.println("Failed to add gate to repository. Error stack: ");
+            e.printStackTrace();
+        }
     }
 
     private void waitingForPlayers() {
@@ -113,91 +149,12 @@ public class Server {
 
     }
 
-    // private void initPlayers() {
-    // int id = startID;
-    // try {
-    // for (int i = 0; i < numberOfPlayers; i++) {
-    // int randX = rand.nextInt(Board.WIDTH / 10 - 1);
-    // int randY = rand.nextInt(Board.HEIGHT / 10 - 1);
-    // gameState.get(new ActualField(randX), new ActualField(randY), new
-    // ActualField(true));
-    // Snake snake = new Snake(id, randX, randY, initSnakeLength);
-    // snake.snakeBody.add(new SnakeBodyPart(randX, randY, id, Board.TILESIZE));
-    // snakeMap.put(id, snake);
-    // gameState.put(randX, randY, id);
-    // id++;
-    // }
-
-    // } catch (InterruptedException e) {
-    // e.printStackTrace();
-    // }
-
-    // }
-
-    private SpaceRepository initRepo() {
-        SpaceRepository repository = new SpaceRepository();
-        gameState = new SequentialSpace();
-        lobby = new SequentialSpace();
-        IDs = new SequentialSpace();
-        repository.add("gameState", gameState);
-        repository.add("lobby", lobby);
-        repository.add("IDs", IDs);
-        return repository;
+    private void initThreads() {
+        idMap.forEach((id, space) -> {
+            Thread t = new PlayerHandler(space);
+            t.start();
+        });
     }
-
-    private void addGate(SpaceRepository repo) {
-        try {
-            BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("Enter an IP address for the  server or press enter for localhost:9001:  ");
-            String ip = input.readLine();
-            if (ip.isEmpty()) {
-                ip = "localhost:9001";
-            }
-            String uri = "tcp://" + ip + "/?keep";
-            URI myUri = new URI(uri);
-            String gateUri = "tcp://" + myUri.getHost() + ":" + myUri.getPort() + "?keep";
-            System.out.println("Opening repository gate at " + gateUri + "...");
-            repo.addGate(gateUri);
-        } catch (Exception e) {
-            System.out.println("Failed to add gate to repository. Error stack: ");
-            e.printStackTrace();
-        }
-    }
-
-    private void createSpaceMatrix() {
-        for (int row = 0; row < Board.HEIGHT / 10; row++) {
-            for (int col = 0; col < Board.WIDTH / 10; col++) {
-                try {
-                    gameState.put(row, col, true);
-                } catch (InterruptedException e) {
-                    System.out.println("Failed to create the space matrix. Error stack");
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    // private void handlePlayerCommands(SequentialSpace playerCommands) {
-    // while (true) {
-    // try {
-    // // Getting the command from the player
-    // Object[] command = playerCommands.get(new FormalField(Integer.class), new
-    // FormalField(String.class));
-    // // Parsing it
-    // int playerID = (int) command[0];
-    // String direction = (String) command[1];
-    // System.out.println(
-    // "New command from player" + playerID + ":" + "\n " + " Direction: " +
-    // direction + "\n");
-    // // Running move
-
-    // move(playerID, direction, snakeMap.get(playerID).xCorHead,
-    // snakeMap.get(playerID).yCorHead);
-    // } catch (InterruptedException e) {
-    // e.printStackTrace();
-    // }
-    // }
-    // }
 
     protected static void move(int playerID, String direction, int xCor, int yCor) {
         int newXCor = xCor;

@@ -1,21 +1,29 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.SequentialSpace;
 import org.jspace.SpaceRepository;
+import java.util.Random;
 
 public class Server {
     private int numberOfPlayers;
+    private int startID;
+    private Random rand;
+    private HashMap<Integer, SequentialSpace> idMap = new HashMap<Integer, SequentialSpace>();
+    private HashMap<Integer, Snake> snakeMap = new HashMap<Integer, Snake>();
     private SpaceRepository repository;
-    private SequentialSpace gameState;
-    private SequentialSpace playersInputSpaces[];
-    private Snake playerOne;
+    private SequentialSpace gameState, lobby, IDs;
 
     public Server(int numberOfPlayers) {
         this.numberOfPlayers = numberOfPlayers;
+        rand = new Random();
+        startID = rand.nextInt(100);
+
     }
 
     public static void main(String[] args) {
@@ -27,37 +35,64 @@ public class Server {
     private void start() {
         repository = createRepo();
         addGate(repository);
+        waitingForPlayers();
         createSpaceMatrix();
-        intiPlayerOne();
-        handlePlayerCommands(playerOneInput);
+        initPlayers();
+        handlePlayerCommands(idMap.get(startID));
     }
 
-    private void intiPlayerOne() {
+    private void waitingForPlayers() {
+        /**
+         * Waits for a player to connect Generates an ID and an input space Puts the ID
+         * in the IDs space
+         * 
+         */
+        int id = startID;
+        for (int i = 0; i < numberOfPlayers; i++) {
+            try {
+                lobby.get(new ActualField("connected"));
+                String name = "player_" + id + "_input";
+                SequentialSpace space = new SequentialSpace();
+                idMap.put(id, space);
+                repository.add(name, space);
+                System.out.println(id);
+                IDs.put(id);
+                id++;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    private void initPlayers() {
+        int id = startID;
         try {
-            gameState.get(new ActualField(10), new ActualField(10), new ActualField(true));
-            this.playerOne = new Snake(1, 10, 10, Board.TILESIZE);
-            playerOne.snakeBody.add(new SnakeBodyPart(playerOne.xCorHead, playerOne.yCorHead, 1, Board.TILESIZE));
-            gameState.put(10, 10, 1);
+            for (int i = 0; i < numberOfPlayers; i++) {
+                int randX = rand.nextInt(Board.WIDTH / 10 - 1);
+                int randY = rand.nextInt(Board.HEIGHT / 10 - 1);
+                gameState.get(new ActualField(randX), new ActualField(randY), new ActualField(true));
+                Snake snake = new Snake(id, randX, randY, 5);
+                snake.snakeBody.add(new SnakeBodyPart(randX, randY, id, Board.TILESIZE));
+                snakeMap.put(id, snake);
+                gameState.put(randX, randY, id);
+                id++;
+            }
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
     }
 
-    private void createInputSpaces() {
-        for (int id : IDlist) {
-            String name = "player_" + id + "_input";
-            SequentialSpace space = new SequentialSpace();
-            repository.add(name, space);
-        }
-    }
-
     private SpaceRepository createRepo() {
         SpaceRepository repository = new SpaceRepository();
         gameState = new SequentialSpace();
-        playerOneInput = new SequentialSpace();
+        lobby = new SequentialSpace();
+        IDs = new SequentialSpace();
         repository.add("gameState", gameState);
-        repository.add("playerOneInput", playerOneInput);
+        repository.add("lobby", lobby);
+        repository.add("IDs", IDs);
         return repository;
     }
 
@@ -104,7 +139,7 @@ public class Server {
                         "New command from player" + playerID + ":" + "\n " + "    Direction: " + direction + "\n");
                 // Running move
 
-                move(playerID, direction, playerOne.xCorHead, playerOne.yCorHead);
+                move(playerID, direction, snakeMap.get(playerID).xCorHead, snakeMap.get(playerID).yCorHead);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -144,17 +179,17 @@ public class Server {
             System.out.println("Updating the game state..");
             gameState.get(new ActualField(newXCor), new ActualField(newYCor), new ActualField(true));
             System.out.println("After getting the empty cell");
-            playerOne.snakeBody.add(new SnakeBodyPart(newXCor, newYCor, 1, Board.TILESIZE));
-            if (playerOne.snakeBody.size() > playerOne.length) {
-                int oldX = playerOne.snakeBody.get(0).xCor;
-                int oldY = playerOne.snakeBody.get(0).yCor;
-                playerOne.snakeBody.remove(0);
+            snakeMap.get(playerID).snakeBody.add(new SnakeBodyPart(newXCor, newYCor, 1, Board.TILESIZE));
+            if (snakeMap.get(playerID).snakeBody.size() > snakeMap.get(playerID).length) {
+                int oldX = snakeMap.get(playerID).snakeBody.get(0).xCor;
+                int oldY = snakeMap.get(playerID).snakeBody.get(0).yCor;
+                snakeMap.get(playerID).snakeBody.remove(0);
                 gameState.get(new ActualField(oldX), new ActualField(oldY), new FormalField(Integer.class));
                 System.out.println("After getting old cell");
                 gameState.put(oldX, oldY, true);
             }
-            playerOne.xCorHead = newXCor;
-            playerOne.yCorHead = newYCor;
+            snakeMap.get(playerID).xCorHead = newXCor;
+            snakeMap.get(playerID).yCorHead = newYCor;
             gameState.put(newXCor, newYCor, playerID);
             System.out.println("Sending new coordinates to client..");
             System.out.println("---------");

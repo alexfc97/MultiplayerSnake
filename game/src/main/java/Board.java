@@ -28,7 +28,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         addKeyListener(this);
         setFocusable(true);
         grid = new Grid(this);
-        playerOne = new Player(1);
+        playerOne = new Player();
     }
 
     public void start() {

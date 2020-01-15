@@ -7,19 +7,26 @@ import java.awt.Graphics;
 
 public class Player {
     private int playerID;
-    RemoteSpace gameState, playerInput;
+    RemoteSpace gameState, playerInput, lobby, IDs;
     private boolean up, down, left, right = false;
 
-    public Player(int ID) {
-        this.playerID = ID;
+    public Player() {
         connect();
     }
 
     private void connect() {
+
         try {
+            lobby = new RemoteSpace("tcp://localhost:9001/lobby?keep");
+            IDs = new RemoteSpace("tcp://localhost:9001/IDs?keep");
             gameState = new RemoteSpace("tcp://localhost:9001/gameState?keep");
-            playerInput = new RemoteSpace("tcp://localhost:9001/playerOneInput?keep");
             System.out.println("Client has created remote repos");
+            lobby.put("connected");
+            Object[] t = IDs.get(new FormalField(Integer.class));
+            System.out.println("Player ID:  " + t.toString());
+            playerID = (int) t[0];
+            String spaceName = "player_" + playerID + "_input";
+            playerInput = new RemoteSpace("tcp://localhost:9001/" + spaceName + "?keep");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -90,7 +97,7 @@ public class Player {
             ArrayList<SnakeBodyPart> allBodyParts = new ArrayList<SnakeBodyPart>(0);
             List<Object[]> response = gameState.queryAll(new FormalField(Integer.class), new FormalField(Integer.class),
                     new FormalField(Integer.class));
-                
+
             System.out.println(response.size());
             for (Object[] obj : response) {
                 System.out.println("In loop");

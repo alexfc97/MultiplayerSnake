@@ -15,9 +15,9 @@ public class Server {
     private int startID;
     private Random rand;
     private HashMap<Integer, SequentialSpace> idMap = new HashMap<Integer, SequentialSpace>();
-    private HashMap<Integer, Snake> snakeMap = new HashMap<Integer, Snake>();
+    protected static HashMap<Integer, Snake> snakeMap = new HashMap<Integer, Snake>();
     private SpaceRepository repository;
-    private SequentialSpace gameState, lobby, IDs;
+    private static SequentialSpace gameState, lobby, IDs;
 
     public Server(int numberOfPlayers) {
         this.numberOfPlayers = numberOfPlayers;
@@ -38,7 +38,16 @@ public class Server {
         waitingForPlayers();
         createSpaceMatrix();
         initPlayers();
-        handlePlayerCommands(idMap.get(startID));
+        initThreads();
+    }
+
+    
+
+    private void initThreads() {
+        idMap.forEach((id, space) -> {
+            Thread t = new PlayerHandler(space);
+            t.start();
+        });
     }
 
     private void waitingForPlayers() {
@@ -127,26 +136,26 @@ public class Server {
         }
     }
 
-    private void handlePlayerCommands(SequentialSpace playerCommands) {
-        while (true) {
-            try {
-                // Getting the command from the player
-                Object[] command = playerCommands.get(new FormalField(Integer.class), new FormalField(String.class));
-                // Parsing it
-                int playerID = (int) command[0];
-                String direction = (String) command[1];
-                System.out.println(
-                        "New command from player" + playerID + ":" + "\n " + "    Direction: " + direction + "\n");
-                // Running move
+    // private void handlePlayerCommands(SequentialSpace playerCommands) {
+    //     while (true) {
+    //         try {
+    //             // Getting the command from the player
+    //             Object[] command = playerCommands.get(new FormalField(Integer.class), new FormalField(String.class));
+    //             // Parsing it
+    //             int playerID = (int) command[0];
+    //             String direction = (String) command[1];
+    //             System.out.println(
+    //                     "New command from player" + playerID + ":" + "\n " + "    Direction: " + direction + "\n");
+    //             // Running move
 
-                move(playerID, direction, snakeMap.get(playerID).xCorHead, snakeMap.get(playerID).yCorHead);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+    //             move(playerID, direction, snakeMap.get(playerID).xCorHead, snakeMap.get(playerID).yCorHead);
+    //         } catch (InterruptedException e) {
+    //             e.printStackTrace();
+    //         }
+    //     }
+    // }
 
-    private void move(int playerID, String direction, int xCor, int yCor) {
+    protected static void move(int playerID, String direction, int xCor, int yCor) {
         int newXCor = xCor;
         int newYCor = yCor;
 

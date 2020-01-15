@@ -24,7 +24,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     public Board() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setFocusable(true);
-        timer = new Timer(500, this);
+        timer = new Timer(30, this);
         addKeyListener(this);
         setFocusable(true);
         grid = new Grid(this);

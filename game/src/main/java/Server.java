@@ -20,15 +20,14 @@ public class Server {
     private SpaceRepository repository;
     private static SequentialSpace gameState, lobby, IDs;
 
-    public Server(int numberOfPlayers) {
-        this.numberOfPlayers = numberOfPlayers;
+    public Server() {
         rand = new Random();
         startID = rand.nextInt(100);
 
     }
 
     public static void main(String[] args) {
-        Server server = new Server(2);
+        Server server = new Server();
         server.start();
     }
 
@@ -97,7 +96,7 @@ public class Server {
                 System.out.println(id);
                 IDs.put(id);
 
-                // Creating Snakes 
+                // Creating Snakes
                 int randX = rand.nextInt(Board.WIDTH / 10 - 1);
                 int randY = rand.nextInt(Board.HEIGHT / 10 - 1);
                 gameState.get(new ActualField(randX), new ActualField(randY), new ActualField(true));
@@ -115,22 +114,23 @@ public class Server {
     }
 
     // private void initPlayers() {
-    //     int id = startID;
-    //     try {
-    //         for (int i = 0; i < numberOfPlayers; i++) {
-    //             int randX = rand.nextInt(Board.WIDTH / 10 - 1);
-    //             int randY = rand.nextInt(Board.HEIGHT / 10 - 1);
-    //             gameState.get(new ActualField(randX), new ActualField(randY), new ActualField(true));
-    //             Snake snake = new Snake(id, randX, randY, initSnakeLength);
-    //             snake.snakeBody.add(new SnakeBodyPart(randX, randY, id, Board.TILESIZE));
-    //             snakeMap.put(id, snake);
-    //             gameState.put(randX, randY, id);
-    //             id++;
-    //         }
+    // int id = startID;
+    // try {
+    // for (int i = 0; i < numberOfPlayers; i++) {
+    // int randX = rand.nextInt(Board.WIDTH / 10 - 1);
+    // int randY = rand.nextInt(Board.HEIGHT / 10 - 1);
+    // gameState.get(new ActualField(randX), new ActualField(randY), new
+    // ActualField(true));
+    // Snake snake = new Snake(id, randX, randY, initSnakeLength);
+    // snake.snakeBody.add(new SnakeBodyPart(randX, randY, id, Board.TILESIZE));
+    // snakeMap.put(id, snake);
+    // gameState.put(randX, randY, id);
+    // id++;
+    // }
 
-    //     } catch (InterruptedException e) {
-    //         e.printStackTrace();
-    //     }
+    // } catch (InterruptedException e) {
+    // e.printStackTrace();
+    // }
 
     // }
 

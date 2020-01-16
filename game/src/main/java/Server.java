@@ -7,6 +7,9 @@ import java.util.*;
 import org.jspace.*;
 
 public class Server {
+    private static int foodSpawnCounter = 0;
+    private static int foodSpawnTimer = 300; // Every 30 secs
+
     private static int numberOfPlayers;
     private int startID;
     private Random rand;
@@ -14,7 +17,7 @@ public class Server {
     private static HashMap<Integer, SequentialSpace> idMap = new HashMap<Integer, SequentialSpace>();
     protected static HashMap<Integer, Snake> snakeMap = new HashMap<Integer, Snake>();
     protected static HashMap<Integer, Thread> threadMap = new HashMap<Integer, Thread>();
-    private int maxfood = 5;
+    private static int maxfood = 3;
     private static ArrayList<Food> foodlist = new ArrayList<>();
 
     // protected static HashMap<Integer, Boolean> isAlive = new HashMap<Integer,
@@ -22,7 +25,7 @@ public class Server {
 
     private SpaceRepository repository;
     private static SequentialSpace lobby, IDs, isAlive;
-    private static RandomSpace gameState;
+    private static SequentialSpace gameState;
 
     public Server() {
         rand = new Random();
@@ -100,7 +103,7 @@ public class Server {
 
     private void initRepo() {
         SpaceRepository repository = new SpaceRepository();
-        gameState = new RandomSpace();
+        gameState = new SequentialSpace();
         lobby = new SequentialSpace();
         IDs = new SequentialSpace();
         isAlive = new SequentialSpace();
@@ -231,12 +234,19 @@ public class Server {
             } else if ((boolean) cell[3]) {
                 snakeMap.get(playerID).length++;
                 foodlist.remove(0);
-                Object[] newFoodCell = gameState.get(new FormalField(Integer.class), new FormalField(Integer.class),
-                        new ActualField(true), new ActualField(false));
-                int newfoodx = (int) newFoodCell[0];
-                int newfoody = (int) newFoodCell[1];
-                foodlist.add(new Food(newfoodx, newfoody));
-                gameState.put(newfoodx, newfoody, true, true);
+            }
+            foodSpawnCounter++;
+            // Adding new food every 5 secs if theres food missing
+            if (foodSpawnCounter >= foodSpawnTimer) {
+                if (foodlist.size() < maxfood) {
+                    Object[] newFoodCell = gameState.get(new FormalField(Integer.class), new FormalField(Integer.class),
+                            new ActualField(true), new ActualField(false));
+                    int newfoodx = (int) newFoodCell[0];
+                    int newfoody = (int) newFoodCell[1];
+                    foodlist.add(new Food(newfoodx, newfoody));
+                    gameState.put(newfoodx, newfoody, true, true);
+                    foodSpawnCounter = 0;
+                }
             }
             System.out.println("After getting the empty cell");
             // Adding a bodypart to the snake object

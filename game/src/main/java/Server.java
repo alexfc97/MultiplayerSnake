@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.jspace.ActualField;
 import org.jspace.FormalField;
@@ -11,14 +13,18 @@ import org.jspace.SpaceRepository;
 import java.util.Random;
 
 public class Server {
-    private int numberOfPlayers;
+    private static int numberOfPlayers;
     private int startID;
     private Random rand;
     private int initSnakeLength;
     private static HashMap<Integer, SequentialSpace> idMap = new HashMap<Integer, SequentialSpace>();
     protected static HashMap<Integer, Snake> snakeMap = new HashMap<Integer, Snake>();
+    protected static HashMap<Integer, Thread> threadMap = new HashMap<Integer, Thread>();
+    // protected static HashMap<Integer, Boolean> isAlive = new HashMap<Integer,
+    // Boolean>();
+
     private SpaceRepository repository;
-    private static SequentialSpace gameState, lobby, IDs;
+    private static SequentialSpace gameState, lobby, IDs, isAlive;
 
     public Server() {
         rand = new Random();
@@ -81,9 +87,11 @@ public class Server {
         gameState = new SequentialSpace();
         lobby = new SequentialSpace();
         IDs = new SequentialSpace();
+        isAlive = new SequentialSpace();
         repository.add("gameState", gameState);
         repository.add("lobby", lobby);
         repository.add("IDs", IDs);
+        repository.add("isAlive", isAlive);
         this.repository = repository;
     }
 
@@ -141,6 +149,9 @@ public class Server {
                 snakeMap.put(id, snake);
                 gameState.put(randX, randY, id);
 
+                // Setting the snakes to be alive
+                isAlive.put(id, true, false);
+
                 id++;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -153,6 +164,7 @@ public class Server {
     private void initThreads() {
         idMap.forEach((id, space) -> {
             Thread t = new PlayerHandler(space);
+            threadMap.put(id, t);
             t.start();
         });
     }
@@ -187,9 +199,19 @@ public class Server {
         System.out.println("New coordinates: " + newXCor + ", " + newYCor);
 
         try {
-            // Waiting for the cell to be avaliable
             System.out.println("Updating the game state..");
-            gameState.get(new ActualField(newXCor), new ActualField(newYCor), new ActualField(true));
+            Object[] cell = gameState.getp(new ActualField(newXCor), new ActualField(newYCor), new ActualField(true));
+            if (cell == null) {
+                removeSnake(playerID);
+                isAlive.get(new ActualField(playerID), new FormalField(Boolean.class), new FormalField(Boolean.class));
+                isAlive.put(playerID, false, false);
+                numberOfPlayers--;
+                checkWinner();
+                threadMap.get(playerID).interrupt();
+
+
+            }
+
             System.out.println("After getting the empty cell");
             // Adding a bodypart to the snake object
             snakeMap.get(playerID).snakeBody.add(new SnakeBodyPart(newXCor, newYCor, 1, Board.TILESIZE));
@@ -213,6 +235,46 @@ public class Server {
             System.out.println("---------");
 
         } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }   
+
+    private static void checkWinner() {
+        int aliveCount = 0;
+        int winnerID = 0;
+        List<Object[]> status = isAlive.queryAll(new FormalField(Integer.class), new FormalField(Boolean.class),
+                new FormalField(Boolean.class));
+        for (Object[] obj : status) {
+            if ((boolean) obj[1] == true) {
+                aliveCount++;
+                winnerID = (int) obj[0];
+            }
+
+        }
+
+        if (aliveCount == 1) {
+            System.out.println("Player " + winnerID + " won!!");
+            try {
+                isAlive.get(new ActualField(winnerID), new FormalField(Boolean.class), new FormalField(Boolean.class));
+                isAlive.put(winnerID, true, true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            threadMap.get(winnerID).interrupt();
+
+        }
+    }
+
+    private static void removeSnake(int playerID) {
+        try {
+            List<Object[]> allCells = gameState.queryAll(new FormalField(Integer.class), new FormalField(Integer.class),
+                    new ActualField(playerID));
+            for (Object[] obj : allCells) {
+                gameState.get(new ActualField(obj[0]), new ActualField(obj[1]), new ActualField(obj[2]));
+                gameState.put(obj[0], obj[1], true);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

@@ -12,10 +12,19 @@ public class SnakeBodyPart {
         this.height = tileSize;
     }
 
-    public void draw(Graphics g) {
-        g.setColor(Color.BLACK);
-        g.fillRect(xCor * width, yCor * height, width, height);
-        g.setColor(Color.GREEN);
-        g.fillRect(xCor * width + 2, yCor * height + 2, width - 4, height - 4);
+    public void draw(Graphics g, int PlayerID) {
+        if(ID == PlayerID){
+            g.setColor(Color.BLACK);
+            g.fillRect(xCor * width, yCor * height, width, height);
+            g.setColor(Color.GREEN);
+            g.fillRect(xCor * width + 2, yCor * height + 2, width - 4, height - 4);
+        }
+        else {
+            g.setColor(Color.BLACK);
+            g.fillRect(xCor * width, yCor * height, width, height);
+            g.setColor(Color.YELLOW);
+            g.fillRect(xCor * width + 2, yCor * height + 2, width - 4, height - 4);
+        }
+
     }
 }

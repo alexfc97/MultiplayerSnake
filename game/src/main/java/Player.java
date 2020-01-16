@@ -49,6 +49,7 @@ public class Player {
                 this.gateIP = ip;
 
             }
+            this.gateIP = ip;
         } catch (Exception e) {
             e.printStackTrace();
         }

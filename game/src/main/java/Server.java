@@ -22,7 +22,7 @@ public class Server {
 
     private SpaceRepository repository;
     private static SequentialSpace lobby, IDs, isAlive;
-    private static SequentialSpace gameState;
+    private static RandomSpace gameState;
 
     public Server() {
         rand = new Random();
@@ -46,14 +46,15 @@ public class Server {
         initThreads();
     }
 
-    private void initFood(){
-        for (int i = 0; i < maxfood; i++){
+    private void initFood() {
+        for (int i = 0; i < maxfood; i++) {
             int randx = rand.nextInt(79);
             int randy = rand.nextInt(79);
             Food f = new Food(randx, randy);
             foodlist.add(f);
             try {
-                gameState.get(new ActualField(f.xCor), new ActualField(f.yCor), new ActualField(true), new ActualField(false));
+                gameState.get(new ActualField(f.xCor), new ActualField(f.yCor), new ActualField(true),
+                        new ActualField(false));
                 gameState.put(f.xCor, f.yCor, true, true);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -99,7 +100,7 @@ public class Server {
 
     private void initRepo() {
         SpaceRepository repository = new SpaceRepository();
-        gameState = new SequentialSpace();
+        gameState = new RandomSpace();
         lobby = new SequentialSpace();
         IDs = new SequentialSpace();
         isAlive = new SequentialSpace();
@@ -158,11 +159,12 @@ public class Server {
                 // Creating Snakes
                 int randX = rand.nextInt(Board.WIDTH / 10 - 1);
                 int randY = rand.nextInt(Board.HEIGHT / 10 - 1);
-                gameState.get(new ActualField(randX), new ActualField(randY), new ActualField(true), new ActualField(false));
+                gameState.get(new ActualField(randX), new ActualField(randY), new ActualField(true),
+                        new ActualField(false));
                 Snake snake = new Snake(id, randX, randY, initSnakeLength);
                 snake.snakeBody.add(new SnakeBodyPart(randX, randY, id, Board.TILESIZE));
                 snakeMap.put(id, snake);
-                gameState.put(randX, randY, id,false);
+                gameState.put(randX, randY, id, false);
 
                 // Setting the snakes to be alive
                 isAlive.put(id, true, false);
@@ -215,7 +217,8 @@ public class Server {
 
         try {
             System.out.println("Updating the game state..");
-            Object[] cell = gameState.getp(new ActualField(newXCor), new ActualField(newYCor), new ActualField(true), new FormalField(Boolean.class));
+            Object[] cell = gameState.getp(new ActualField(newXCor), new ActualField(newYCor), new ActualField(true),
+                    new FormalField(Boolean.class));
             // If theres a snake body
             if (cell == null) {
                 removeSnake(playerID);
@@ -228,10 +231,11 @@ public class Server {
             } else if ((boolean) cell[3]) {
                 snakeMap.get(playerID).length++;
                 foodlist.remove(0);
-                Object[] newFoodCell = gameState.get(new ActualField(Integer.class), new FormalField(Integer.class), new ActualField(true), new ActualField(false));
+                Object[] newFoodCell = gameState.get(new FormalField(Integer.class), new FormalField(Integer.class),
+                        new ActualField(true), new ActualField(false));
                 int newfoodx = (int) newFoodCell[0];
                 int newfoody = (int) newFoodCell[1];
-                foodlist.add(new Food(newfoodx,newfoody));
+                foodlist.add(new Food(newfoodx, newfoody));
                 gameState.put(newfoodx, newfoody, true, true);
             }
             System.out.println("After getting the empty cell");
@@ -242,7 +246,8 @@ public class Server {
                 int oldX = snakeMap.get(playerID).snakeBody.get(0).xCor;
                 int oldY = snakeMap.get(playerID).snakeBody.get(0).yCor;
                 snakeMap.get(playerID).snakeBody.remove(0);
-                gameState.get(new ActualField(oldX), new ActualField(oldY), new FormalField(Integer.class), new FormalField(Boolean.class));
+                gameState.get(new ActualField(oldX), new ActualField(oldY), new FormalField(Integer.class),
+                        new FormalField(Boolean.class));
                 System.out.println("After getting old cell");
                 gameState.put(oldX, oldY, true, false);
             }
@@ -252,7 +257,7 @@ public class Server {
             // Putting back the clinet input lock
             idMap.get(playerID).put("input_lock");
             // Updating the game state
-            gameState.put(newXCor, newYCor, playerID,false);
+            gameState.put(newXCor, newYCor, playerID, false);
             System.out.println("Sending new coordinates to client..");
             System.out.println("---------");
 
@@ -260,7 +265,7 @@ public class Server {
             e.printStackTrace();
         }
 
-    }   
+    }
 
     private static void checkWinner() {
         int aliveCount = 0;
@@ -293,7 +298,8 @@ public class Server {
             List<Object[]> allCells = gameState.queryAll(new FormalField(Integer.class), new FormalField(Integer.class),
                     new ActualField(playerID), new FormalField(Boolean.class));
             for (Object[] obj : allCells) {
-                gameState.get(new ActualField(obj[0]), new ActualField(obj[1]), new ActualField(obj[2]), new FormalField(Boolean.class));
+                gameState.get(new ActualField(obj[0]), new ActualField(obj[1]), new ActualField(obj[2]),
+                        new FormalField(Boolean.class));
                 gameState.put(obj[0], obj[1], true, false);
             }
         } catch (Exception e) {

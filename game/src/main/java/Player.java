@@ -61,7 +61,6 @@ public class Player {
         try {
             Object[] status = isAlive.query(new ActualField(playerID), new FormalField(Boolean.class),
                     new FormalField(Boolean.class));
-            System.out.println("Am i alive? " + status[1] + ", Did i win?" + status[2]);
             if ((boolean) status[1] == false) {
                 GameOver popup = new GameOver("lost");
                 System.out.println("Im dead lol");

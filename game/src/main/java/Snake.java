@@ -110,7 +110,7 @@ public class Snake {
 
     public void draw(Graphics g) {
         for (int i = 0; i < snakeBody.size(); i++) {
-            snakeBody.get(i).draw(g);
+            snakeBody.get(i).draw(g,playerID);
         }
     }
 

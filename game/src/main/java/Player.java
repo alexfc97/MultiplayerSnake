@@ -49,6 +49,7 @@ public class Player {
                 this.gateIP = ip;
 
             }
+            this.gateIP = ip;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -151,7 +152,7 @@ public class Player {
     public void draw(Graphics g) {
         ArrayList<SnakeBodyPart> allBodyParts = getAllBodyParts();
         for (SnakeBodyPart bodyPart : allBodyParts) {
-            bodyPart.draw(g);
+            bodyPart.draw(g,playerID);
         }
 
     }

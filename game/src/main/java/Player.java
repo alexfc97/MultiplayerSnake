@@ -10,7 +10,7 @@ import java.awt.Graphics;
 
 public class Player {
     private int playerID;
-    RemoteSpace gameState, playerInput, lobby, IDs;
+    RemoteSpace gameState, playerInput, lobby, IDs, isAlive;
     private boolean up, down, left, right = false;
     private String gateIP;
 
@@ -25,6 +25,7 @@ public class Player {
             lobby = new RemoteSpace("tcp://" + gateIP + "/lobby?keep");
             IDs = new RemoteSpace("tcp://" + gateIP + "/IDs?keep");
             gameState = new RemoteSpace("tcp://" + gateIP + "/gameState?keep");
+            isAlive = new RemoteSpace("tcp://" + gateIP + "/isAlive?keep");
             System.out.println("Client has created remote repos");
             lobby.put("connected");
             Object[] t = IDs.get(new FormalField(Integer.class));
@@ -55,28 +56,39 @@ public class Player {
     }
 
     public void update() {
+
         try {
+            Object[] status = isAlive.query(new ActualField(playerID), new FormalField(Boolean.class),
+                    new FormalField(Boolean.class));
+            System.out.println("Am i alive? " + status[1] + ", Did i win?" + status[2]);
+            if ((boolean) status[1] == false) {
+                GameOver popup = new GameOver("lost");
+                System.out.println("Im dead lol");
+            } else if ((boolean) status[2] == true) {
+                GameOver popup = new GameOver("WON");
+                System.out.println("I WONN!");
+            }
             Object[] lock = playerInput.getp(new ActualField("input_lock"));
-            if(lock != null){
-            
-            if (right) {
-                playerInput.put(playerID, "right");
-            }
+            if (lock != null) {
 
-            else if (left) {
-                playerInput.put(playerID, "left");
-            }
+                if (right) {
+                    playerInput.put(playerID, "right");
+                }   
 
-            else if (up) {
-                playerInput.put(playerID, "up");
-            }
+                else if (left) {
+                    playerInput.put(playerID, "left");
+                }
 
-            else if (down) {
-                playerInput.put(playerID, "down");
-            } else {
-                playerInput.put("input_lock");
+                else if (up) {
+                    playerInput.put(playerID, "up");
+                }
+
+                else if (down) {
+                    playerInput.put(playerID, "down");
+                } else {
+                    playerInput.put("input_lock");
+                }
             }
-        }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -115,16 +127,16 @@ public class Player {
     public ArrayList<SnakeBodyPart> getAllBodyParts() {
         try {
             ArrayList<SnakeBodyPart> allBodyParts = new ArrayList<SnakeBodyPart>(0);
+
             List<Object[]> response = gameState.queryAll(new FormalField(Integer.class), new FormalField(Integer.class),
                     new FormalField(Integer.class));
-
-            System.out.println(response.size());
             for (Object[] obj : response) {
                 int xCor = (int) obj[0];
                 int yCor = (int) obj[1];
                 int ID = (int) obj[2];
-                if(ID == playerID){
-                    System.out.println("Response from server: X: " + xCor + " Y: " + yCor + " ID: " + ID);
+                if (ID == playerID) {
+                    // System.out.println("Response from server: X: " + xCor + " Y: " + yCor + " ID:
+                    // " + ID);
                 }
                 allBodyParts.add(new SnakeBodyPart(xCor, yCor, ID, Board.TILESIZE));
             }

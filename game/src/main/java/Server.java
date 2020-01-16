@@ -2,15 +2,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import org.jspace.ActualField;
-import org.jspace.FormalField;
-import org.jspace.SequentialSpace;
-import org.jspace.SpaceRepository;
-import java.util.Random;
+import org.jspace.*;
 
 public class Server {
     private static int numberOfPlayers;
@@ -20,11 +14,15 @@ public class Server {
     private static HashMap<Integer, SequentialSpace> idMap = new HashMap<Integer, SequentialSpace>();
     protected static HashMap<Integer, Snake> snakeMap = new HashMap<Integer, Snake>();
     protected static HashMap<Integer, Thread> threadMap = new HashMap<Integer, Thread>();
+    private int maxfood = 5;
+    private static ArrayList<Food> foodlist = new ArrayList<>();
+
     // protected static HashMap<Integer, Boolean> isAlive = new HashMap<Integer,
     // Boolean>();
 
     private SpaceRepository repository;
-    private static SequentialSpace gameState, lobby, IDs, isAlive;
+    private static SequentialSpace lobby, IDs, isAlive;
+    private static SequentialSpace gameState;
 
     public Server() {
         rand = new Random();
@@ -42,9 +40,26 @@ public class Server {
         initSnakeLength();
         initRepo();
         createSpaceMatrix();
+        initFood();
         addGate(repository);
         waitingForPlayers();
         initThreads();
+    }
+
+    private void initFood(){
+        for (int i = 0; i < maxfood; i++){
+            int randx = rand.nextInt(79);
+            int randy = rand.nextInt(79);
+            Food f = new Food(randx, randy);
+            foodlist.add(f);
+            try {
+                gameState.get(new ActualField(f.xCor), new ActualField(f.yCor), new ActualField(true), new ActualField(false));
+                gameState.put(f.xCor, f.yCor, true, true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     private void initNumberOfPlayers() {
@@ -99,7 +114,7 @@ public class Server {
         for (int row = 0; row < Board.HEIGHT / 10; row++) {
             for (int col = 0; col < Board.WIDTH / 10; col++) {
                 try {
-                    gameState.put(row, col, true);
+                    gameState.put(row, col, true, false);
                 } catch (InterruptedException e) {
                     System.out.println("Failed to create the space matrix. Error stack");
                     e.printStackTrace();
@@ -143,11 +158,11 @@ public class Server {
                 // Creating Snakes
                 int randX = rand.nextInt(Board.WIDTH / 10 - 1);
                 int randY = rand.nextInt(Board.HEIGHT / 10 - 1);
-                gameState.get(new ActualField(randX), new ActualField(randY), new ActualField(true));
+                gameState.get(new ActualField(randX), new ActualField(randY), new ActualField(true), new ActualField(false));
                 Snake snake = new Snake(id, randX, randY, initSnakeLength);
                 snake.snakeBody.add(new SnakeBodyPart(randX, randY, id, Board.TILESIZE));
                 snakeMap.put(id, snake);
-                gameState.put(randX, randY, id);
+                gameState.put(randX, randY, id,false);
 
                 // Setting the snakes to be alive
                 isAlive.put(id, true, false);
@@ -200,7 +215,8 @@ public class Server {
 
         try {
             System.out.println("Updating the game state..");
-            Object[] cell = gameState.getp(new ActualField(newXCor), new ActualField(newYCor), new ActualField(true));
+            Object[] cell = gameState.getp(new ActualField(newXCor), new ActualField(newYCor), new ActualField(true), new FormalField(Boolean.class));
+            // If theres a snake body
             if (cell == null) {
                 removeSnake(playerID);
                 isAlive.get(new ActualField(playerID), new FormalField(Boolean.class), new FormalField(Boolean.class));
@@ -208,21 +224,27 @@ public class Server {
                 numberOfPlayers--;
                 checkWinner();
                 threadMap.get(playerID).interrupt();
-
-
+                // If theres food
+            } else if ((boolean) cell[3]) {
+                snakeMap.get(playerID).length++;
+                foodlist.remove(0);
+                Object[] newFoodCell = gameState.get(new ActualField(Integer.class), new FormalField(Integer.class), new ActualField(true), new ActualField(false));
+                int newfoodx = (int) newFoodCell[0];
+                int newfoody = (int) newFoodCell[1];
+                foodlist.add(new Food(newfoodx,newfoody));
+                gameState.put(newfoodx, newfoody, true, true);
             }
-
             System.out.println("After getting the empty cell");
             // Adding a bodypart to the snake object
-            snakeMap.get(playerID).snakeBody.add(new SnakeBodyPart(newXCor, newYCor, 1, Board.TILESIZE));
+            snakeMap.get(playerID).snakeBody.add(new SnakeBodyPart(newXCor, newYCor, playerID, Board.TILESIZE));
             // Controlling for length
             if (snakeMap.get(playerID).snakeBody.size() > snakeMap.get(playerID).length) {
                 int oldX = snakeMap.get(playerID).snakeBody.get(0).xCor;
                 int oldY = snakeMap.get(playerID).snakeBody.get(0).yCor;
                 snakeMap.get(playerID).snakeBody.remove(0);
-                gameState.get(new ActualField(oldX), new ActualField(oldY), new FormalField(Integer.class));
+                gameState.get(new ActualField(oldX), new ActualField(oldY), new FormalField(Integer.class), new FormalField(Boolean.class));
                 System.out.println("After getting old cell");
-                gameState.put(oldX, oldY, true);
+                gameState.put(oldX, oldY, true, false);
             }
             // Updating the snake
             snakeMap.get(playerID).xCorHead = newXCor;
@@ -230,7 +252,7 @@ public class Server {
             // Putting back the clinet input lock
             idMap.get(playerID).put("input_lock");
             // Updating the game state
-            gameState.put(newXCor, newYCor, playerID);
+            gameState.put(newXCor, newYCor, playerID,false);
             System.out.println("Sending new coordinates to client..");
             System.out.println("---------");
 
@@ -269,10 +291,10 @@ public class Server {
     private static void removeSnake(int playerID) {
         try {
             List<Object[]> allCells = gameState.queryAll(new FormalField(Integer.class), new FormalField(Integer.class),
-                    new ActualField(playerID));
+                    new ActualField(playerID), new FormalField(Boolean.class));
             for (Object[] obj : allCells) {
-                gameState.get(new ActualField(obj[0]), new ActualField(obj[1]), new ActualField(obj[2]));
-                gameState.put(obj[0], obj[1], true);
+                gameState.get(new ActualField(obj[0]), new ActualField(obj[1]), new ActualField(obj[2]), new FormalField(Boolean.class));
+                gameState.put(obj[0], obj[1], true, false);
             }
         } catch (Exception e) {
             e.printStackTrace();

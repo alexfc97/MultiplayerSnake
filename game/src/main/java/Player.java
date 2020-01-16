@@ -125,12 +125,31 @@ public class Player {
 
     }
 
+    public ArrayList<Food> getAllFood(){
+        try {
+            ArrayList<Food> allfoods = new ArrayList<Food>(0);
+            List<Object[]> response = gameState.queryAll(new FormalField(Integer.class), new FormalField(Integer.class),
+                    new FormalField(Boolean.class), new ActualField(true));
+            for (Object[] obj : response) {
+                int foodXCor = (int) obj[0];
+                int foodYCor = (int) obj[1];
+
+                allfoods.add(new Food(foodXCor, foodYCor));
+            }
+            return allfoods;
+        } catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
     public ArrayList<SnakeBodyPart> getAllBodyParts() {
         try {
             ArrayList<SnakeBodyPart> allBodyParts = new ArrayList<SnakeBodyPart>(0);
 
             List<Object[]> response = gameState.queryAll(new FormalField(Integer.class), new FormalField(Integer.class),
-                    new FormalField(Integer.class));
+                    new FormalField(Integer.class), new FormalField(Boolean.class));
             for (Object[] obj : response) {
                 int xCor = (int) obj[0];
                 int yCor = (int) obj[1];
@@ -151,8 +170,13 @@ public class Player {
 
     public void draw(Graphics g) {
         ArrayList<SnakeBodyPart> allBodyParts = getAllBodyParts();
+        ArrayList<Food> allfoods = getAllFood();
         for (SnakeBodyPart bodyPart : allBodyParts) {
             bodyPart.draw(g,playerID);
+        }
+
+        for (Food food : allfoods) {
+            food.draw(g);
         }
 
     }

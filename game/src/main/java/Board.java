@@ -1,6 +1,6 @@
 import javax.swing.JPanel;
 
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -9,8 +9,6 @@ import java.awt.event.KeyListener;
 import javax.swing.Timer;
 
 import org.jspace.RemoteSpace;
-
-import java.awt.Dimension;
 
 public class Board extends JPanel implements ActionListener, KeyListener {
     public static final int WIDTH = 800;
@@ -39,6 +37,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         update();
+        Toolkit.getDefaultToolkit().sync();
         repaint();
     }
 

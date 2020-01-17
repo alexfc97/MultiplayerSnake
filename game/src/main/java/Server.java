@@ -8,7 +8,7 @@ import org.jspace.*;
 
 public class Server {
     private static int foodSpawnCounter = 0;
-    private static int foodSpawnTimer = 300; // Every 30 secs
+    private static int foodSpawnTimer = 300; // Every 15s secs
 
     private static int numberOfPlayers;
     private int startID;
@@ -154,7 +154,6 @@ public class Server {
                 lobby.get(new ActualField("connected"));
                 String name = "player_" + id + "_input";
                 SequentialSpace space = new SequentialSpace();
-                space.put("input_lock");
                 idMap.put(id, space);
                 repository.add(name, space);
                 IDs.put(id);
@@ -236,7 +235,7 @@ public class Server {
                 foodlist.remove(0);
             }
             foodSpawnCounter++;
-            // Adding new food every 5 secs if theres food missing
+            // Adding new food every 15 secs if theres food missing
             if (foodSpawnCounter >= foodSpawnTimer) {
                 if (foodlist.size() < maxfood) {
                     Object[] newFoodCell = gameState.get(new FormalField(Integer.class), new FormalField(Integer.class),
@@ -264,8 +263,6 @@ public class Server {
             // Updating the snake
             snakeMap.get(playerID).xCorHead = newXCor;
             snakeMap.get(playerID).yCorHead = newYCor;
-            // Putting back the clinet input lock
-            idMap.get(playerID).put("input_lock");
             // Updating the game state
             gameState.put(newXCor, newYCor, playerID, false);
             System.out.println("Sending new coordinates to client..");

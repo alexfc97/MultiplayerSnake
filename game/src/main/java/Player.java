@@ -68,27 +68,23 @@ public class Player {
                 GameOver popup = new GameOver("WON");
                 System.out.println("I WONN!");
             }
-            Object[] lock = playerInput.getp(new ActualField("input_lock"));
-            if (lock != null) {
 
-                if (right) {
-                    playerInput.put(playerID, "right");
-                }   
-
-                else if (left) {
-                    playerInput.put(playerID, "left");
-                }
-
-                else if (up) {
-                    playerInput.put(playerID, "up");
-                }
-
-                else if (down) {
-                    playerInput.put(playerID, "down");
-                } else {
-                    playerInput.put("input_lock");
-                }
+            if (right) {
+                playerInput.put(playerID, "right");
             }
+
+            else if (left) {
+                playerInput.put(playerID, "left");
+            }
+
+            else if (up) {
+                playerInput.put(playerID, "up");
+            }
+
+            else if (down) {
+                playerInput.put(playerID, "down");
+            }
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -124,7 +120,7 @@ public class Player {
 
     }
 
-    public ArrayList<Food> getAllFood(){
+    public ArrayList<Food> getAllFood() {
         try {
             ArrayList<Food> allfoods = new ArrayList<Food>(0);
             List<Object[]> response = gameState.queryAll(new FormalField(Integer.class), new FormalField(Integer.class),
@@ -136,7 +132,7 @@ public class Player {
                 allfoods.add(new Food(foodXCor, foodYCor));
             }
             return allfoods;
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -171,7 +167,7 @@ public class Player {
         ArrayList<SnakeBodyPart> allBodyParts = getAllBodyParts();
         ArrayList<Food> allfoods = getAllFood();
         for (SnakeBodyPart bodyPart : allBodyParts) {
-            bodyPart.draw(g,playerID);
+            bodyPart.draw(g, playerID);
         }
 
         for (Food food : allfoods) {

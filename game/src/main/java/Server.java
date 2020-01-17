@@ -154,7 +154,6 @@ public class Server {
                 lobby.get(new ActualField("connected"));
                 String name = "player_" + id + "_input";
                 SequentialSpace space = new SequentialSpace();
-                space.put("input_lock");
                 idMap.put(id, space);
                 repository.add(name, space);
                 IDs.put(id);
@@ -264,8 +263,6 @@ public class Server {
             // Updating the snake
             snakeMap.get(playerID).xCorHead = newXCor;
             snakeMap.get(playerID).yCorHead = newYCor;
-            // Putting back the clinet input lock
-            idMap.get(playerID).put("input_lock");
             // Updating the game state
             gameState.put(newXCor, newYCor, playerID, false);
             System.out.println("Sending new coordinates to client..");

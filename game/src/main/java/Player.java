@@ -61,7 +61,6 @@ public class Player {
         try {
             Object[] status = isAlive.query(new ActualField(playerID), new FormalField(Boolean.class),
                     new FormalField(Boolean.class));
-            System.out.println("Am i alive? " + status[1] + ", Did i win?" + status[2]);
             if ((boolean) status[1] == false) {
                 GameOver popup = new GameOver("lost");
                 System.out.println("Im dead lol");
@@ -69,26 +68,21 @@ public class Player {
                 GameOver popup = new GameOver("WON");
                 System.out.println("I WONN!");
             }
-            Object[] lock = playerInput.getp(new ActualField("input_lock"));
-            if (lock != null) {
 
-                if (right) {
-                    playerInput.put(playerID, "right");
-                }   
+            if (right) {
+                playerInput.put(playerID, "right");
+            }
 
-                else if (left) {
-                    playerInput.put(playerID, "left");
-                }
+            else if (left) {
+                playerInput.put(playerID, "left");
+            }
 
-                else if (up) {
-                    playerInput.put(playerID, "up");
-                }
+            else if (up) {
+                playerInput.put(playerID, "up");
+            }
 
-                else if (down) {
-                    playerInput.put(playerID, "down");
-                } else {
-                    playerInput.put("input_lock");
-                }
+            else if (down) {
+                playerInput.put(playerID, "down");
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -125,12 +119,31 @@ public class Player {
 
     }
 
+    public ArrayList<Food> getAllFood() {
+        try {
+            ArrayList<Food> allfoods = new ArrayList<Food>(0);
+            List<Object[]> response = gameState.queryAll(new FormalField(Integer.class), new FormalField(Integer.class),
+                    new FormalField(Boolean.class), new ActualField(true));
+            for (Object[] obj : response) {
+                int foodXCor = (int) obj[0];
+                int foodYCor = (int) obj[1];
+
+                allfoods.add(new Food(foodXCor, foodYCor));
+            }
+            return allfoods;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
     public ArrayList<SnakeBodyPart> getAllBodyParts() {
         try {
             ArrayList<SnakeBodyPart> allBodyParts = new ArrayList<SnakeBodyPart>(0);
 
             List<Object[]> response = gameState.queryAll(new FormalField(Integer.class), new FormalField(Integer.class),
-                    new FormalField(Integer.class));
+                    new FormalField(Integer.class), new FormalField(Boolean.class));
             for (Object[] obj : response) {
                 int xCor = (int) obj[0];
                 int yCor = (int) obj[1];
@@ -151,8 +164,13 @@ public class Player {
 
     public void draw(Graphics g) {
         ArrayList<SnakeBodyPart> allBodyParts = getAllBodyParts();
+        ArrayList<Food> allfoods = getAllFood();
         for (SnakeBodyPart bodyPart : allBodyParts) {
-            bodyPart.draw(g,playerID);
+            bodyPart.draw(g, playerID);
+        }
+
+        for (Food food : allfoods) {
+            food.draw(g);
         }
 
     }

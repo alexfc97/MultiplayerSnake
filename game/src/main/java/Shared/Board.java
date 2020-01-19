@@ -1,3 +1,5 @@
+package Shared;
+
 import javax.swing.JPanel;
 
 import java.awt.*;
@@ -9,6 +11,9 @@ import java.awt.event.KeyListener;
 import javax.swing.Timer;
 
 import org.jspace.RemoteSpace;
+
+import Client.Grid;
+import Client.Player;
 
 public class Board extends JPanel implements ActionListener, KeyListener {
     public static final int WIDTH = 800;
@@ -35,7 +40,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     // Runs every timer tick
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(final ActionEvent e) {
         update();
         Toolkit.getDefaultToolkit().sync();
         repaint();
@@ -46,30 +51,26 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     }
 
-
-
     @Override
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
         grid.draw(g);
         player.draw(g);
 
-
-
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
+    public void keyTyped(final KeyEvent e) {
     }
 
     @Override
-    public void keyPressed(KeyEvent e) {
+    public void keyPressed(final KeyEvent e) {
         player.pressed(e);
 
     }
 
     @Override
-    public void keyReleased(KeyEvent e) {
+    public void keyReleased(final KeyEvent e) {
         // TODO Auto-generated method stub
 
     }

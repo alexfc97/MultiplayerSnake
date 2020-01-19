@@ -1,4 +1,8 @@
+package Client;
+
 import javax.swing.JFrame;
+
+import Shared.Board;
 
 public class SnakeGame extends JFrame {
     Board board;

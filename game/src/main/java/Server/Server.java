@@ -1,3 +1,5 @@
+package Server;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -5,6 +7,11 @@ import java.net.URI;
 import java.util.*;
 
 import org.jspace.*;
+
+import Shared.Board;
+import Shared.Food;
+import Shared.Snake;
+import Shared.SnakeBodyPart;
 
 public class Server {
     private static int foodSpawnCounter = 0;

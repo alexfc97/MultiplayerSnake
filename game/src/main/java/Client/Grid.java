@@ -1,16 +1,20 @@
+package Client;
+
 import java.awt.Graphics;
+
+import Shared.Board;
+
 import java.awt.Color;
 
-
-public class Grid{
+public class Grid {
     private Board board;
 
-    public Grid(Board board){
+    public Grid(Board board) {
         this.board = board;
     }
 
-    public void draw(Graphics g){
-       // g.clearRect(0, 0, board.WIDTH, board.HEIGHT);
+    public void draw(Graphics g) {
+        // g.clearRect(0, 0, board.WIDTH, board.HEIGHT);
         g.setColor(new Color(10, 50, 0));
         g.fillRect(0, 0, Board.WIDTH, Board.HEIGHT);
         g.setColor(Color.BLACK);

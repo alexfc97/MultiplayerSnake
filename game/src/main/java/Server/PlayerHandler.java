@@ -1,3 +1,5 @@
+package Server;
+
 import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.SequentialSpace;
@@ -20,8 +22,9 @@ public class PlayerHandler extends Thread {
                 String direction = (String) command[1];
                 System.out.println(
                         "New command from player" + playerID + ":" + "\n " + "    Direction: " + direction + "\n");
-                // Running move         
-                Server.move(playerID, direction, Server.snakeMap.get(playerID).xCorHead, Server.snakeMap.get(playerID).yCorHead);
+                // Running move
+                Server.move(playerID, direction, Server.snakeMap.get(playerID).xCorHead,
+                        Server.snakeMap.get(playerID).yCorHead);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

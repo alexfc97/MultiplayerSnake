@@ -1,6 +1,13 @@
+package Client;
+
 import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.RemoteSpace;
+
+import Shared.Board;
+import Shared.Food;
+import Shared.SnakeBodyPart;
+
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

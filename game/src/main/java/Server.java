@@ -219,9 +219,10 @@ public class Server {
 
         try {
             System.out.println("Updating the game state..");
+            // Trying to get a cell with no snake
             Object[] cell = gameState.getp(new ActualField(newXCor), new ActualField(newYCor), new ActualField(true),
                     new FormalField(Boolean.class));
-            // If theres a snake body
+            // If there's a snake
             if (cell == null) {
                 removeSnake(playerID);
                 isAlive.get(new ActualField(playerID), new FormalField(Boolean.class), new FormalField(Boolean.class));
@@ -235,7 +236,6 @@ public class Server {
                 foodlist.remove(0);
             }
             foodSpawnCounter++;
-            // Adding new food every 15 secs if theres food missing
             if (foodSpawnCounter >= foodSpawnTimer) {
                 if (foodlist.size() < maxfood) {
                     Object[] newFoodCell = gameState.get(new FormalField(Integer.class), new FormalField(Integer.class),
@@ -260,7 +260,7 @@ public class Server {
                 System.out.println("After getting old cell");
                 gameState.put(oldX, oldY, true, false);
             }
-            // Updating the snake
+            // Updating the snake object's head coordinates
             snakeMap.get(playerID).xCorHead = newXCor;
             snakeMap.get(playerID).yCorHead = newYCor;
             // Updating the game state

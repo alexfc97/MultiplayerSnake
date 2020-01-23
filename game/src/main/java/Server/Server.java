@@ -14,21 +14,15 @@ import Shared.Snake;
 import Shared.SnakeBodyPart;
 
 public class Server {
-    private static int foodSpawnCounter = 0;
-    private static int foodSpawnTimer = 60; // Every 15s secs
-
     private static int numberOfPlayers;
     private int startID;
-    private Random rand;
+    private static Random rand;
     private int initSnakeLength;
     private static HashMap<Integer, SequentialSpace> idMap = new HashMap<Integer, SequentialSpace>();
     protected static HashMap<Integer, Snake> snakeMap = new HashMap<Integer, Snake>();
     protected static HashMap<Integer, Thread> threadMap = new HashMap<Integer, Thread>();
     private static int maxfood = 5;
     private static ArrayList<Food> foodlist = new ArrayList<>();
-
-    // protected static HashMap<Integer, Boolean> isAlive = new HashMap<Integer,
-    // Boolean>();
 
     private SpaceRepository repository;
     private static SequentialSpace lobby, IDs, isAlive;
@@ -81,7 +75,7 @@ public class Server {
             if (n.isEmpty()) {
                 n = "2";
             }
-            this.numberOfPlayers = Integer.valueOf(n);
+            Server.numberOfPlayers = Integer.valueOf(n);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -241,21 +235,16 @@ public class Server {
                 snakeMap.get(playerID).length++;
                 foodlist.remove(0);
                 if (foodlist.size() < maxfood) {
-                    Object[] newFoodCell;
-                    for (int i = 0; i < 2; i++) {
-                        Random rand = new Random();
-                        int newx = rand.nextInt(60);
-                        int newy = rand.nextInt(60);
-                        newFoodCell = gameState.getp(new ActualField(newx), new ActualField(newy),
-                                new ActualField(true), new ActualField(false));
-                        if (newFoodCell != null) {
-                            int newfoodx = (int) newFoodCell[0];
-                            int newfoody = (int) newFoodCell[1];
-                            foodlist.add(new Food(newfoodx, newfoody));
-                            gameState.put(newfoodx, newfoody, true, true);
-                            break;
-                        }
+                    int randX = rand.nextInt(Board.WIDTH / 10 - 1);
+                    int randY = rand.nextInt(Board.HEIGHT / 10 - 1);
+                    Object[] newFoodCell = gameState.getp(new ActualField(randX), new ActualField(randY),
+                            new ActualField(true), new ActualField(false));
+                    if (newFoodCell != null) {
+                        foodlist.add(new Food(randX, randY));
+                        gameState.put(randX, randY, true, true);
+
                     }
+
                 }
             }
             System.out.println("After getting the empty cell");

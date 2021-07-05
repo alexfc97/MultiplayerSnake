@@ -20,4 +20,5 @@ public class Snake {
         this.xCorHead = initXCorHead;
         this.yCorHead = initYCorHead;
         this.length = initLength;
-    }}
+    }
+}
